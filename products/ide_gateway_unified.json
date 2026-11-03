@@ -1,0 +1,64 @@
+{
+  "name": "Unified IDE Gateway",
+  "displayName": "Unified IDE Gateway",
+  "description": "Single Enterprise Gateway product for Google Antigravity, Claude Code CLI, and GitHub Copilot across ide-gateway-v1, antigravity-gateway-v1, apigee-claude-cli, and apigee-copilot-cli.",
+  "approvalType": "auto",
+  "attributes": [
+    {
+      "name": "access",
+      "value": "private"
+    }
+  ],
+  "environments": [
+    "dev"
+  ],
+  "operationGroup": {
+    "operationConfigs": [
+      {
+        "apiSource": "ide-gateway-v1",
+        "operations": [
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ]
+          }
+        ]
+      },
+      {
+        "apiSource": "antigravity-gateway-v1",
+        "operations": [
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ]
+          }
+        ]
+      },
+      {
+        "apiSource": "apigee-claude-cli",
+        "operations": [
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ]
+          }
+        ]
+      },
+      {
+        "apiSource": "apigee-copilot-cli",
+        "operations": [
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ]
+          }
+        ]
+      }
+    ],
+    "operationConfigType": "proxy"
+  }
+}

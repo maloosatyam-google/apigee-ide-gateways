@@ -1,0 +1,31 @@
+{
+  "name": "Claude Code CLI Gateway",
+  "displayName": "Claude Code CLI Gateway",
+  "description": "Enterprise Gateway product for Anthropic Claude Code CLI through apigee-claude-cli (/apigee-claude-cli).",
+  "approvalType": "auto",
+  "attributes": [
+    {
+      "name": "access",
+      "value": "private"
+    }
+  ],
+  "environments": [
+    "dev"
+  ],
+  "operationGroup": {
+    "operationConfigs": [
+      {
+        "apiSource": "apigee-claude-cli",
+        "operations": [
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ]
+          }
+        ]
+      }
+    ],
+    "operationConfigType": "proxy"
+  }
+}

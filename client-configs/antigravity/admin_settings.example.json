@@ -1,0 +1,24 @@
+{
+  "gateway": {
+    "enabled": true,
+    "url": "https://APIGEE_HOST/antigravity/v1",
+    "apiKey": "APIGEE_KEY",
+    "wireProtocol": "genai",
+    "customHeaders": {
+      "x-apikey": "APIGEE_KEY",
+      "X-Goog-User-Project": "PROJECT_ID",
+      "X-Cost-Center": "Core-Engineering"
+    },
+    "models": {
+      "defaultModelId": "gemini-3.8-flash",
+      "filter": [
+        "gemini-3.8-flash",
+        "gemini-3.1-pro-preview",
+        "gemini-3.1-flash-lite"
+      ]
+    }
+  },
+  "auth": {
+    "suppressInteractiveLogin": true
+  }
+}

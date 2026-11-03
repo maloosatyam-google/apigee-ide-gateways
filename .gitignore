@@ -1,0 +1,7 @@
+.env
+.env.*
+*.creds.json
+admin_settings.json
+dist/
+.DS_Store
+*.log

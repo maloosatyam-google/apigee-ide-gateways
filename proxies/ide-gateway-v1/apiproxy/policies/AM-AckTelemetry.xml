@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AssignMessage async="false" continueOnError="false" enabled="true" name="AM-AckTelemetry">
+  <DisplayName>AM-AckTelemetry</DisplayName>
+  <!-- Antigravity Enterprise Gateway requirement 1c: return 200 OK ({}) for /v1internal:* telemetry endpoints -->
+  <Set>
+    <StatusCode>200</StatusCode>
+    <ReasonPhrase>OK</ReasonPhrase>
+    <Payload contentType="application/json">{}</Payload>
+  </Set>
+  <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+  <AssignTo createNew="false" transport="http" type="response"/>
+</AssignMessage>
+

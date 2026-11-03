@@ -1,0 +1,31 @@
+{
+  "name": "GitHub Copilot CLI Gateway",
+  "displayName": "GitHub Copilot CLI Gateway",
+  "description": "Enterprise Gateway product for GitHub Copilot (VS Code BYOK & CLI) through apigee-copilot-cli (/apigee-copilot-cli).",
+  "approvalType": "auto",
+  "attributes": [
+    {
+      "name": "access",
+      "value": "private"
+    }
+  ],
+  "environments": [
+    "dev"
+  ],
+  "operationGroup": {
+    "operationConfigs": [
+      {
+        "apiSource": "apigee-copilot-cli",
+        "operations": [
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ]
+          }
+        ]
+      }
+    ],
+    "operationConfigType": "proxy"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "Antigravity Enterprise Gateway",
+  "displayName": "Antigravity Enterprise Gateway",
+  "description": "Enterprise Gateway product for Google Antigravity CLI (agy), App, and ACP Server through antigravity-gateway-v1 (/antigravity/v1).",
+  "approvalType": "auto",
+  "attributes": [
+    {
+      "name": "access",
+      "value": "private"
+    }
+  ],
+  "environments": [
+    "dev"
+  ],
+  "operationGroup": {
+    "operationConfigs": [
+      {
+        "apiSource": "antigravity-gateway-v1",
+        "operations": [
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ]
+          }
+        ]
+      }
+    ],
+    "operationConfigType": "proxy"
+  }
+}
+

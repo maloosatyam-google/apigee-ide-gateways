@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ExtractVariables async="false" continueOnError="true" enabled="true" name="EV-ExtractAPIKey">
+  <DisplayName>EV-ExtractAPIKey</DisplayName>
+  <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+  <!-- Antigravity Gateway sends Authorization: Bearer <GATEWAY_API_KEY>; also accept x-goog-api-key and x-apikey -->
+  <Header name="Authorization">
+    <Pattern ignoreCase="true">Bearer {apiKey}</Pattern>
+    <Pattern ignoreCase="true">{apiKey}</Pattern>
+  </Header>
+  <Header name="x-goog-api-key">
+    <Pattern ignoreCase="true">{apiKey}</Pattern>
+  </Header>
+  <Header name="x-apikey">
+    <Pattern ignoreCase="true">{apiKey}</Pattern>
+  </Header>
+  <Source clearPayload="false">request</Source>
+  <VariablePrefix>flow</VariablePrefix>
+</ExtractVariables>
+

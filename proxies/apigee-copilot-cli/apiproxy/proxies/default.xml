@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ProxyEndpoint name="default">
+  <PreFlow name="PreFlow">
+    <Request>
+      <Step>
+        <Name>CORS</Name>
+      </Step>
+      <Step>
+        <Name>EV-ExtractAPIKey</Name>
+        <Condition>request.verb != "OPTIONS"</Condition>
+      </Step>
+      <Step>
+        <Name>VA-VerifyAPIKey</Name>
+        <Condition>request.verb != "OPTIONS"</Condition>
+      </Step>
+      <Step>
+        <Name>RF-UnsupportedPath</Name>
+        <Condition>(request.verb != "POST") or !(proxy.pathsuffix JavaRegex "^(/v1)?/chat/completions$")</Condition>
+      </Step>
+      <Step>
+        <Name>JS-NormalizeOpenAIRequest</Name>
+      </Step>
+      <Step>
+        <Name>EV-ExtractBearerToken</Name>
+      </Step>
+      <Step>
+        <Name>DJWT-ExtractUserIdentity</Name>
+        <Condition>flow.rawToken != null</Condition>
+      </Step>
+      <Step>
+        <Name>AM-SetUserIdentity</Name>
+        <Condition>(jwt.DJWT-ExtractUserIdentity.decoded.claim.email != null) or (jwt.DJWT-ExtractUserIdentity.claim.email != null)</Condition>
+      </Step>
+    </Request>
+    <Response/>
+  </PreFlow>
+  <Flows/>
+  <PostFlow name="PostFlow">
+    <Request/>
+    <Response>
+      <Step>
+        <Name>DC-ModelAnalytics</Name>
+        <Condition>response.status.code = 200</Condition>
+      </Step>
+    </Response>
+  </PostFlow>
+  <PostClientFlow name="PostClientFlow">
+    <Response>
+      <Step>
+        <Name>ML-CloudLogging</Name>
+      </Step>
+    </Response>
+  </PostClientFlow>
+  <DefaultFaultRule name="attribute-fault-to-user">
+    <AlwaysEnforce>true</AlwaysEnforce>
+    <Step>
+      <Name>DC-FaultAnalytics</Name>
+    </Step>
+  </DefaultFaultRule>
+  <HTTPProxyConnection>
+    <BasePath>/apigee-copilot-cli</BasePath>
+    <Properties/>
+  </HTTPProxyConnection>
+  <RouteRule name="vertex-stream">
+    <Condition>flow.is_stream = "true"</Condition>
+    <TargetEndpoint>vertex-stream</TargetEndpoint>
+  </RouteRule>
+  <RouteRule name="vertex">
+    <TargetEndpoint>vertex</TargetEndpoint>
+  </RouteRule>
+</ProxyEndpoint>

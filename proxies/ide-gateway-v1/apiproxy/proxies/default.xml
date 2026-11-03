@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  Unified Multi-Assistant IDE Gateway (ide-gateway-v1)
+  Single Apigee X proxy (/ide-gateway/v1) serving:
+    1. Google Antigravity (agy CLI, App & ACP Server) - GenAI wire protocol (/v1beta/models/*, /v1internal:*)
+    2. Anthropic Claude Code (claude CLI)             - Vertex Anthropic wire protocol (/v1/projects/*/locations/*/publishers/anthropic/models/*)
+    3. GitHub Copilot (VS Code BYOK & Copilot CLI)    - OpenAI Chat Completions wire protocol (/chat/completions, /v1/chat/completions)
+-->
+<ProxyEndpoint name="default">
+  <PreFlow name="PreFlow">
+    <Request>
+      <Step>
+        <Name>CORS</Name>
+      </Step>
+      <Step>
+        <Name>EV-ExtractAPIKey</Name>
+        <Condition>request.verb != "OPTIONS"</Condition>
+      </Step>
+      <Step>
+        <Name>VA-VerifyAPIKey</Name>
+        <Condition>request.verb != "OPTIONS"</Condition>
+      </Step>
+      <Step>
+        <Name>RF-UnsupportedPath</Name>
+        <Condition>(request.verb != "POST") or (!(proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/models/gemini[A-Za-z0-9.\-]*:(generateContent|streamGenerateContent)$") and !(proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/v1internal:(recordCodeAssistMetrics|registerInteraction|recordInteraction)$") and !(proxy.pathsuffix JavaRegex "^/v1/projects/[^/]+/locations/[^/]+/publishers/anthropic/models/[A-Za-z0-9.\-@]+:(rawPredict|streamRawPredict|countTokens)$") and !(proxy.pathsuffix JavaRegex "^(/v1)?/chat/completions$"))</Condition>
+      </Step>
+      <Step>
+        <Name>EV-RequestDetails</Name>
+      </Step>
+      <Step>
+        <Name>AM-NormalizeModel</Name>
+        <Condition>flow.model != null</Condition>
+      </Step>
+      <Step>
+        <Name>AM-OverrideFlashLitePreview</Name>
+        <Condition>flow.model = "gemini-3.1-flash-lite-preview"</Condition>
+      </Step>
+      <Step>
+        <Name>JS-NormalizeOpenAIRequest</Name>
+        <Condition>proxy.pathsuffix JavaRegex "^(/v1)?/chat/completions$"</Condition>
+      </Step>
+      <Step>
+        <Name>EV-ExtractBearerToken</Name>
+      </Step>
+      <Step>
+        <Name>DJWT-ExtractUserIdentity</Name>
+        <Condition>flow.rawToken != null</Condition>
+      </Step>
+      <Step>
+        <Name>AM-SetUserIdentity</Name>
+        <Condition>(jwt.DJWT-ExtractUserIdentity.decoded.claim.email != null) or (jwt.DJWT-ExtractUserIdentity.claim.email != null)</Condition>
+      </Step>
+    </Request>
+    <Response/>
+  </PreFlow>
+  <Flows>
+    <Flow name="TelemetryEndpoints">
+      <Description>Acknowledge Antigravity /v1internal:* telemetry endpoints with 200 OK ({})</Description>
+      <Request/>
+      <Response>
+        <Step>
+          <Name>AM-AckTelemetry</Name>
+        </Step>
+      </Response>
+      <Condition>proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/v1internal:(recordCodeAssistMetrics|registerInteraction|recordInteraction)$"</Condition>
+    </Flow>
+  </Flows>
+  <PostFlow name="PostFlow">
+    <Request/>
+    <Response>
+      <Step>
+        <Name>EV-ModelResponse</Name>
+        <Condition>(response.status.code = 200) and (proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/models/gemini[A-Za-z0-9.\-]*:generateContent$")</Condition>
+      </Step>
+      <Step>
+        <Name>KVM-GetModelRates</Name>
+        <Condition>(response.status.code = 200) and (proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/models/gemini[A-Za-z0-9.\-]*:generateContent$")</Condition>
+      </Step>
+      <Step>
+        <Name>JS-CalculateCost</Name>
+        <Condition>(response.status.code = 200) and (proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/models/gemini[A-Za-z0-9.\-]*:generateContent$")</Condition>
+      </Step>
+      <Step>
+        <Name>DC-ModelAnalytics</Name>
+        <Condition>response.status.code = 200</Condition>
+      </Step>
+      <Step>
+        <Name>AM-SetResponseHeaders</Name>
+        <Condition>proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/models/gemini[A-Za-z0-9.\-]*:generateContent$"</Condition>
+      </Step>
+    </Response>
+  </PostFlow>
+  <PostClientFlow name="PostClientFlow">
+    <Response>
+      <Step>
+        <Name>ML-CloudLogging</Name>
+      </Step>
+    </Response>
+  </PostClientFlow>
+  <DefaultFaultRule name="attribute-fault-to-user">
+    <AlwaysEnforce>true</AlwaysEnforce>
+    <Step>
+      <Name>DC-FaultAnalytics</Name>
+    </Step>
+  </DefaultFaultRule>
+  <HTTPProxyConnection>
+    <BasePath>/ide-gateway/v1</BasePath>
+    <Properties/>
+  </HTTPProxyConnection>
+  <RouteRule name="telemetry-ack">
+    <Condition>proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/v1internal:(recordCodeAssistMetrics|registerInteraction|recordInteraction)$"</Condition>
+  </RouteRule>
+  <RouteRule name="vertex-claude-stream">
+    <Condition>proxy.pathsuffix JavaRegex "^/v1/projects/[^/]+/locations/[^/]+/publishers/anthropic/models/[A-Za-z0-9.\-@]+:streamRawPredict$"</Condition>
+    <TargetEndpoint>vertex-claude-stream</TargetEndpoint>
+  </RouteRule>
+  <RouteRule name="vertex-claude">
+    <Condition>proxy.pathsuffix JavaRegex "^/v1/projects/[^/]+/locations/[^/]+/publishers/anthropic/models/[A-Za-z0-9.\-@]+:(rawPredict|countTokens)$"</Condition>
+    <TargetEndpoint>vertex-claude</TargetEndpoint>
+  </RouteRule>
+  <RouteRule name="vertex-openapi-stream">
+    <Condition>(proxy.pathsuffix JavaRegex "^(/v1)?/chat/completions$") and (flow.is_stream = "true")</Condition>
+    <TargetEndpoint>vertex-openapi-stream</TargetEndpoint>
+  </RouteRule>
+  <RouteRule name="vertex-openapi">
+    <Condition>proxy.pathsuffix JavaRegex "^(/v1)?/chat/completions$"</Condition>
+    <TargetEndpoint>vertex-openapi</TargetEndpoint>
+  </RouteRule>
+  <RouteRule name="vertex-stream">
+    <Condition>proxy.pathsuffix JavaRegex "^.*:streamGenerateContent$"</Condition>
+    <TargetEndpoint>vertex-stream</TargetEndpoint>
+  </RouteRule>
+  <RouteRule name="vertex">
+    <TargetEndpoint>vertex</TargetEndpoint>
+  </RouteRule>
+</ProxyEndpoint>

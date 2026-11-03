@@ -1,0 +1,24 @@
+{
+  "github.copilot.chat.customOAIModels": {
+    "gemini-3.8-flash": {
+      "name": "Gemini 3.8 Flash (Apigee Enterprise Gateway)",
+      "url": "https://APIGEE_HOST/apigee-copilot-cli/v1/chat/completions",
+      "toolCalling": true,
+      "vision": true,
+      "thinking": true,
+      "maxInputTokens": 200000,
+      "maxOutputTokens": 16384,
+      "requiresAPIKey": true
+    },
+    "gemini-3.1-pro-preview": {
+      "name": "Gemini 3.1 Pro (Apigee Enterprise Gateway)",
+      "url": "https://APIGEE_HOST/apigee-copilot-cli/v1/chat/completions",
+      "toolCalling": true,
+      "vision": true,
+      "thinking": true,
+      "maxInputTokens": 200000,
+      "maxOutputTokens": 16384,
+      "requiresAPIKey": true
+    }
+  }
+}
