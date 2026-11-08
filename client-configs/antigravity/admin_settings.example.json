@@ -15,8 +15,7 @@
       {
         "modelId": "gemini-4-argon",
         "displayName": "Gemini 4 Argon",
-        "provider": "google",
-        "supportsThinking": false
+        "provider": "google"
       },
       {
         "modelId": "gemini-3.8-flash",
