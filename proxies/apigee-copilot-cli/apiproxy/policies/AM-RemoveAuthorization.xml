@@ -4,6 +4,7 @@
   <!-- Strip client gateway credentials so GoogleAccessToken authenticates to Vertex AI, while preserving User-Agent, X-Goog-Api-Client, X-Goog-User-Project, and custom X-* attribution headers -->
   <Remove>
     <Headers>
+      <Header name="x-api-key"/>
       <Header name="x-apikey"/>
       <Header name="x-goog-api-key"/>
       <Header name="Authorization"/>

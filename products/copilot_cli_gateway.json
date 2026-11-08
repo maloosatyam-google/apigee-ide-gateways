@@ -1,7 +1,7 @@
 {
   "name": "GitHub Copilot CLI Gateway",
   "displayName": "GitHub Copilot CLI Gateway",
-  "description": "Enterprise Gateway product for GitHub Copilot (VS Code BYOK & CLI) through apigee-copilot-cli (/apigee-copilot-cli).",
+  "description": "Enterprise Gateway product for GitHub Copilot (VS Code BYOK & CLI) through apigee-copilot-cli (/apigee-copilot-cli) with per-model LLMTokenQuota governance.",
   "approvalType": "auto",
   "attributes": [
     {
@@ -20,6 +20,7 @@
           {
             "resource": "/**",
             "methods": [
+              "GET",
               "POST"
             ]
           }
@@ -27,5 +28,128 @@
       }
     ],
     "operationConfigType": "proxy"
+  },
+  "llmOperationGroup": {
+    "operationConfigs": [
+      {
+        "apiSource": "apigee-copilot-cli",
+        "llmOperations": [
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ],
+            "model": "gemini-4-argon"
+          }
+        ],
+        "llmTokenQuota": {
+          "limit": "100000",
+          "interval": "1",
+          "timeUnit": "minute"
+        }
+      },
+      {
+        "apiSource": "apigee-copilot-cli",
+        "llmOperations": [
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ],
+            "model": "gemini-3.8-flash"
+          }
+        ],
+        "llmTokenQuota": {
+          "limit": "100000",
+          "interval": "1",
+          "timeUnit": "minute"
+        }
+      },
+      {
+        "apiSource": "apigee-copilot-cli",
+        "llmOperations": [
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ],
+            "model": "gemini-3.6-flash"
+          }
+        ],
+        "llmTokenQuota": {
+          "limit": "100000",
+          "interval": "1",
+          "timeUnit": "minute"
+        }
+      },
+      {
+        "apiSource": "apigee-copilot-cli",
+        "llmOperations": [
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ],
+            "model": "gemini-3.1-pro-preview"
+          }
+        ],
+        "llmTokenQuota": {
+          "limit": "100000",
+          "interval": "1",
+          "timeUnit": "minute"
+        }
+      },
+      {
+        "apiSource": "apigee-copilot-cli",
+        "llmOperations": [
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ],
+            "model": "gemini-3.1-flash-lite"
+          }
+        ],
+        "llmTokenQuota": {
+          "limit": "100000",
+          "interval": "1",
+          "timeUnit": "minute"
+        }
+      },
+      {
+        "apiSource": "apigee-copilot-cli",
+        "llmOperations": [
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ],
+            "model": "gemini-2.5-pro"
+          }
+        ],
+        "llmTokenQuota": {
+          "limit": "100000",
+          "interval": "1",
+          "timeUnit": "minute"
+        }
+      },
+      {
+        "apiSource": "apigee-copilot-cli",
+        "llmOperations": [
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ],
+            "model": "gemini-2.5-flash"
+          }
+        ],
+        "llmTokenQuota": {
+          "limit": "100000",
+          "interval": "1",
+          "timeUnit": "minute"
+        }
+      }
+    ]
   }
 }

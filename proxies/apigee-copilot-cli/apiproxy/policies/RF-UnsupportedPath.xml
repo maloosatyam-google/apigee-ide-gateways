@@ -9,7 +9,7 @@
   "error": {
     "code": 404,
     "status": "NOT_FOUND",
-    "message": "Copilot OpenAI Gateway serves POST /chat/completions and POST /v1/chat/completions.",
+    "message": "Copilot OpenAI Gateway serves GET /v1/models and POST /v1/chat/completions.",
     "requestId": "{messageid}"
   }
 }

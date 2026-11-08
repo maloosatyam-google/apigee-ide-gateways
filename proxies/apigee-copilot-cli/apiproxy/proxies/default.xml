@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  GitHub Copilot & OpenAI-Compatible Enterprise Gateway (apigee-copilot-cli)
+  Governs GitHub Copilot (VS Code BYOK & CLI) traffic to Vertex AI OpenAI endpoint:
+    1. CORS preflight & header support (CORS)
+    2. API Key authentication via Authorization: Bearer <KEY>, x-api-key, x-apikey, or x-goog-api-key (EV-ExtractAPIKey + VA-VerifyAPIKey)
+    3. OpenAI Model Discovery endpoint (GET /v1/models, GET /models -> AM-ModelsResponse)
+    4. Per-user identity attribution from API Key developer email or GCP identity JWT
+    5. User Prompt & Model Response extraction + Model Armor sanitization (JS-NormalizeOpenAIRequest + SUP-UserPrompt + SMR-SanitizeModelResponse / SMR-SanitizeModelResponseSSE)
+    6. Token Limiting via API Product llmOperationGroup (LTQ-TokenEnforce + LTQ-TokenCount / LTQ-TokenCountSSE)
+    7. Unbuffered SSE Streaming on POST /v1/chat/completions (stream=true) with EventFlow analytics & token counting
+    8. Cloud Logging audit trail including prompt & response text in PostClientFlow (ML-CloudLogging)
+-->
 <ProxyEndpoint name="default">
   <PreFlow name="PreFlow">
     <Request>
@@ -15,10 +27,15 @@
       </Step>
       <Step>
         <Name>RF-UnsupportedPath</Name>
-        <Condition>(request.verb != "POST") or !(proxy.pathsuffix JavaRegex "^(/v1)?/chat/completions$")</Condition>
+        <Condition>!((request.verb = "GET") and (proxy.pathsuffix JavaRegex "^(/v1)?/models$")) and !((request.verb = "POST") and (proxy.pathsuffix JavaRegex "^(/v1)?/chat/completions$"))</Condition>
       </Step>
       <Step>
         <Name>JS-NormalizeOpenAIRequest</Name>
+        <Condition>request.verb = "POST"</Condition>
+      </Step>
+      <Step>
+        <Name>AM-NormalizeModel</Name>
+        <Condition>request.verb = "POST"</Condition>
       </Step>
       <Step>
         <Name>EV-ExtractBearerToken</Name>
@@ -31,16 +48,59 @@
         <Name>AM-SetUserIdentity</Name>
         <Condition>(jwt.DJWT-ExtractUserIdentity.decoded.claim.email != null) or (jwt.DJWT-ExtractUserIdentity.claim.email != null)</Condition>
       </Step>
+      <Step>
+        <Name>SUP-UserPrompt</Name>
+        <Condition>(request.verb = "POST") and (flow.userPrompt != null) and (flow.userPrompt != "")</Condition>
+      </Step>
+      <Step>
+        <Name>LTQ-TokenEnforce</Name>
+        <Condition>request.verb = "POST"</Condition>
+      </Step>
     </Request>
     <Response/>
   </PreFlow>
-  <Flows/>
+  <Flows>
+    <Flow name="ListModels">
+      <Description>OpenAI /v1/models discovery endpoint for GitHub Copilot BYOK</Description>
+      <Request/>
+      <Response>
+        <Step>
+          <Name>AM-ModelsResponse</Name>
+        </Step>
+      </Response>
+      <Condition>(request.verb = "GET") and (proxy.pathsuffix JavaRegex "^(/v1)?/models$")</Condition>
+    </Flow>
+  </Flows>
   <PostFlow name="PostFlow">
     <Request/>
     <Response>
       <Step>
+        <Name>EV-ModelResponse</Name>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.is_stream != "true")</Condition>
+      </Step>
+      <Step>
+        <Name>LTQ-TokenCount</Name>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.is_stream != "true")</Condition>
+      </Step>
+      <Step>
+        <Name>KVM-GetModelRates</Name>
+        <Condition>(request.verb = "POST") and (response.status.code = 200)</Condition>
+      </Step>
+      <Step>
+        <Name>JS-CalculateCost</Name>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.is_stream != "true")</Condition>
+      </Step>
+      <Step>
+        <Name>SMR-SanitizeModelResponse</Name>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.is_stream != "true") and (flow.responseText != null) and (flow.responseText != "")</Condition>
+      </Step>
+      <Step>
         <Name>DC-ModelAnalytics</Name>
-        <Condition>response.status.code = 200</Condition>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.is_stream != "true")</Condition>
+      </Step>
+      <Step>
+        <Name>AM-SetResponseHeaders</Name>
+        <Condition>(request.verb = "POST") and (flow.is_stream != "true")</Condition>
       </Step>
     </Response>
   </PostFlow>
@@ -61,6 +121,9 @@
     <BasePath>/apigee-copilot-cli</BasePath>
     <Properties/>
   </HTTPProxyConnection>
+  <RouteRule name="models-list">
+    <Condition>(request.verb = "GET") and (proxy.pathsuffix JavaRegex "^(/v1)?/models$")</Condition>
+  </RouteRule>
   <RouteRule name="vertex-stream">
     <Condition>flow.is_stream = "true"</Condition>
     <TargetEndpoint>vertex-stream</TargetEndpoint>

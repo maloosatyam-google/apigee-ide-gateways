@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <APIProxy revision="1" name="apigee-copilot-cli">
-  <DisplayName>GitHub Copilot &amp; OpenAI CLI Gateway</DisplayName>
-  <Description>Enterprise Apigee X Gateway for GitHub Copilot (VS Code BYOK &amp; CLI) and OpenAI-compatible coding assistants backed by Vertex AI OpenAI Chat Completions (/v1beta1/projects/{org}/locations/global/endpoints/openapi/chat/completions).</Description>
-  <BasePaths>/apigee-copilot-cli</BasePaths>
+  <DisplayName>apigee-copilot-cli</DisplayName>
+  <Description>GitHub Copilot &amp; OpenAI-compatible Enterprise Gateway to Vertex AI Gemini (/endpoints/openapi/chat/completions) with API Key auth, Model Armor, LLMTokenQuota, SSE EventFlow, and Cloud Logging</Description>
   <Policies>
+    <Policy>AM-ModelsResponse</Policy>
+    <Policy>AM-NormalizeModel</Policy>
     <Policy>AM-RemoveAuthorization</Policy>
     <Policy>AM-RouteVertex</Policy>
     <Policy>AM-RouteVertexStream</Policy>
+    <Policy>AM-SetResponseHeaders</Policy>
     <Policy>AM-SetUserIdentity</Policy>
     <Policy>CORS</Policy>
     <Policy>DC-FaultAnalytics</Policy>
@@ -14,16 +16,28 @@
     <Policy>DJWT-ExtractUserIdentity</Policy>
     <Policy>EV-ExtractAPIKey</Policy>
     <Policy>EV-ExtractBearerToken</Policy>
+    <Policy>EV-ModelResponse</Policy>
+    <Policy>JS-CalculateCost</Policy>
     <Policy>JS-NormalizeOpenAIRequest</Policy>
+    <Policy>JS-ProcessStreamEvent</Policy>
+    <Policy>KVM-GetModelRates</Policy>
+    <Policy>LTQ-TokenCount</Policy>
+    <Policy>LTQ-TokenCountSSE</Policy>
+    <Policy>LTQ-TokenEnforce</Policy>
     <Policy>ML-CloudLogging</Policy>
     <Policy>RF-UnsupportedPath</Policy>
+    <Policy>SMR-SanitizeModelResponse</Policy>
+    <Policy>SMR-SanitizeModelResponseSSE</Policy>
+    <Policy>SUP-UserPrompt</Policy>
     <Policy>VA-VerifyAPIKey</Policy>
   </Policies>
   <ProxyEndpoints>
     <ProxyEndpoint>default</ProxyEndpoint>
   </ProxyEndpoints>
   <Resources>
+    <Resource>jsc://CalculateCost.js</Resource>
     <Resource>jsc://NormalizeOpenAIRequest.js</Resource>
+    <Resource>jsc://ProcessStreamEvent.js</Resource>
   </Resources>
   <TargetEndpoints>
     <TargetEndpoint>vertex</TargetEndpoint>

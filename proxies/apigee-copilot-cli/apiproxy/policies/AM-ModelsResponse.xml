@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AssignMessage async="false" continueOnError="false" enabled="true" name="AM-ModelsResponse">
+  <DisplayName>AM-ModelsResponse</DisplayName>
+  <Set>
+    <StatusCode>200</StatusCode>
+    <ReasonPhrase>OK</ReasonPhrase>
+    <Payload contentType="application/json">{
+  "object": "list",
+  "data": [
+    {
+      "id": "gemini-4-argon",
+      "object": "model",
+      "owned_by": "google"
+    },
+    {
+      "id": "gemini-3.8-flash",
+      "object": "model",
+      "owned_by": "google"
+    },
+    {
+      "id": "gemini-3.1-pro-preview",
+      "object": "model",
+      "owned_by": "google"
+    },
+    {
+      "id": "gemini-3.1-flash-lite",
+      "object": "model",
+      "owned_by": "google"
+    },
+    {
+      "id": "gemini-2.5-pro",
+      "object": "model",
+      "owned_by": "google"
+    },
+    {
+      "id": "gemini-2.5-flash",
+      "object": "model",
+      "owned_by": "google"
+    }
+  ]
+}</Payload>
+  </Set>
+  <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+  <AssignTo createNew="false" transport="http" type="response"/>
+</AssignMessage>
