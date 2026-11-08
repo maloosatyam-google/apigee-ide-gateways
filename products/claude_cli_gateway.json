@@ -1,7 +1,7 @@
 {
   "name": "Claude Code CLI Gateway",
   "displayName": "Claude Code CLI Gateway",
-  "description": "Enterprise Gateway product for Anthropic Claude Code CLI through apigee-claude-cli (/apigee-claude-cli).",
+  "description": "Enterprise Gateway product for Anthropic Claude Code CLI through claude-gateway-v1 (/claude/v1) with per-model LLMTokenQuota governance.",
   "approvalType": "auto",
   "attributes": [
     {
@@ -15,7 +15,7 @@
   "operationGroup": {
     "operationConfigs": [
       {
-        "apiSource": "apigee-claude-cli",
+        "apiSource": "claude-gateway-v1",
         "operations": [
           {
             "resource": "/**",
@@ -27,5 +27,54 @@
       }
     ],
     "operationConfigType": "proxy"
+  },
+  "llmOperationGroup": {
+    "operationConfigs": [
+      {
+        "apiSource": "claude-gateway-v1",
+        "llmOperations": [
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ],
+            "model": "claude-sonnet-5"
+          },
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ],
+            "model": "claude-opus-5-5"
+          },
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ],
+            "model": "claude-haiku-5-5"
+          },
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ],
+            "model": "claude-opus-4-5"
+          },
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ],
+            "model": "claude-haiku-4-5"
+          }
+        ],
+        "llmTokenQuota": {
+          "limit": "100000",
+          "interval": "1",
+          "timeUnit": "minute"
+        }
+      }
+    ]
   }
 }

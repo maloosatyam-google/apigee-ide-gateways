@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  Claude Code Enterprise Gateway (claude-gateway-v1)
+  Governs Anthropic Claude Code CLI & IDE traffic to Vertex AI:
+    1. CORS preflight & header support (CORS)
+    2. API Key authentication via x-apikey, x-goog-api-key, or Authorization: Bearer (EV-ExtractAPIKey + VA-VerifyAPIKey)
+    3. Per-user identity attribution from GCP identity JWT (EV-ExtractBearerToken + DJWT-ExtractUserIdentity + AM-SetUserIdentity)
+    4. Token Limiting via API Product llmOperationGroup (LTQ-TokenEnforce + LTQ-TokenCount / LTQ-TokenCountSSE)
+    5. DataCapture for Apigee Analytics (DC-ModelAnalytics + DC-FaultAnalytics)
+    6. Cloud Logging audit trail in PostClientFlow (ML-CloudLogging)
+-->
+<ProxyEndpoint name="default">
+  <PreFlow name="PreFlow">
+    <Request>
+      <Step>
+        <Name>CORS</Name>
+      </Step>
+      <Step>
+        <Name>EV-ExtractAPIKey</Name>
+        <Condition>request.verb != "OPTIONS"</Condition>
+      </Step>
+      <Step>
+        <Name>VA-VerifyAPIKey</Name>
+        <Condition>request.verb != "OPTIONS"</Condition>
+      </Step>
+      <Step>
+        <Name>RF-UnsupportedPath</Name>
+        <Condition>(request.verb != "POST") or !(proxy.pathsuffix JavaRegex "^(/v1/projects/[^/]+/locations/[^/]+/publishers/anthropic)?/models/[A-Za-z0-9.\-@]+:(rawPredict|streamRawPredict|countTokens)$")</Condition>
+      </Step>
+      <Step>
+        <Name>EV-RequestDetails</Name>
+      </Step>
+      <Step>
+        <Name>AM-NormalizeModel</Name>
+        <Condition>flow.model != null</Condition>
+      </Step>
+      <Step>
+        <Name>EV-ExtractBearerToken</Name>
+      </Step>
+      <Step>
+        <Name>DJWT-ExtractUserIdentity</Name>
+        <Condition>flow.rawToken != null</Condition>
+      </Step>
+      <Step>
+        <Name>AM-SetUserIdentity</Name>
+        <Condition>(jwt.DJWT-ExtractUserIdentity.decoded.claim.email != null) or (jwt.DJWT-ExtractUserIdentity.claim.email != null)</Condition>
+      </Step>
+      <Step>
+        <Name>LTQ-TokenEnforce</Name>
+        <Condition>!(proxy.pathsuffix JavaRegex "^.*:countTokens$")</Condition>
+      </Step>
+    </Request>
+    <Response/>
+  </PreFlow>
+  <Flows/>
+  <PostFlow name="PostFlow">
+    <Request/>
+    <Response>
+      <Step>
+        <Name>EV-ModelResponse</Name>
+        <Condition>(response.status.code = 200) and !(proxy.pathsuffix JavaRegex "^.*:streamRawPredict$")</Condition>
+      </Step>
+      <Step>
+        <Name>JS-ExtractClaudeUsage</Name>
+        <Condition>(response.status.code = 200) and !(proxy.pathsuffix JavaRegex "^.*:streamRawPredict$")</Condition>
+      </Step>
+      <Step>
+        <Name>LTQ-TokenCount</Name>
+        <Condition>(response.status.code = 200) and !(proxy.pathsuffix JavaRegex "^.*:(streamRawPredict|countTokens)$")</Condition>
+      </Step>
+      <Step>
+        <Name>KVM-GetModelRates</Name>
+        <Condition>(response.status.code = 200) and !(proxy.pathsuffix JavaRegex "^.*:streamRawPredict$")</Condition>
+      </Step>
+      <Step>
+        <Name>JS-CalculateCost</Name>
+        <Condition>(response.status.code = 200) and !(proxy.pathsuffix JavaRegex "^.*:streamRawPredict$")</Condition>
+      </Step>
+      <Step>
+        <Name>DC-ModelAnalytics</Name>
+        <Condition>response.status.code = 200</Condition>
+      </Step>
+      <Step>
+        <Name>AM-SetResponseHeaders</Name>
+        <Condition>!(proxy.pathsuffix JavaRegex "^.*:streamRawPredict$")</Condition>
+      </Step>
+    </Response>
+  </PostFlow>
+  <PostClientFlow name="PostClientFlow">
+    <Response>
+      <Step>
+        <Name>ML-CloudLogging</Name>
+      </Step>
+    </Response>
+  </PostClientFlow>
+  <DefaultFaultRule name="attribute-fault-to-user">
+    <AlwaysEnforce>true</AlwaysEnforce>
+    <Step>
+      <Name>DC-FaultAnalytics</Name>
+    </Step>
+  </DefaultFaultRule>
+  <HTTPProxyConnection>
+    <BasePath>/claude/v1</BasePath>
+    <Properties/>
+  </HTTPProxyConnection>
+  <RouteRule name="vertex-stream">
+    <Condition>proxy.pathsuffix JavaRegex "^.*:streamRawPredict$"</Condition>
+    <TargetEndpoint>vertex-stream</TargetEndpoint>
+  </RouteRule>
+  <RouteRule name="vertex">
+    <TargetEndpoint>vertex</TargetEndpoint>
+  </RouteRule>
+</ProxyEndpoint>

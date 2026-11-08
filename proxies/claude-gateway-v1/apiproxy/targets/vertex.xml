@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<TargetEndpoint name="default">
-  <Description/>
-  <FaultRules/>
+<TargetEndpoint name="vertex">
+  <Description>Vertex AI Anthropic Claude (:rawPredict / :countTokens), called as the proxy's service account</Description>
   <PreFlow name="PreFlow">
-    <Request/>
+    <Request>
+      <Step>
+        <Name>AM-RemoveAuthorization</Name>
+      </Step>
+    </Request>
     <Response/>
   </PreFlow>
   <PostFlow name="PostFlow">
@@ -12,7 +15,9 @@
   </PostFlow>
   <Flows/>
   <HTTPTargetConnection>
-    <Properties/>
+    <Properties>
+      <Property name="io.timeout.millis">120000</Property>
+    </Properties>
     <URL>https://aiplatform.googleapis.com</URL>
     <Authentication>
       <GoogleAccessToken>

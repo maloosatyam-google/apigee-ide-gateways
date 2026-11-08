@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<APIProxy revision="1" name="claude-gateway-v1">
+  <DisplayName>Claude Code Enterprise Gateway</DisplayName>
+  <Description>Enterprise LLM Gateway for Anthropic Claude Code CLI and IDE extensions on Vertex AI. Includes VerifyAPIKey, CORS, LLMTokenQuota (Product-driven token limits across unary &amp; SSE streaming), DataCapture analytics, and Cloud Logging.</Description>
+  <BasePaths>/claude/v1</BasePaths>
+  <Policies>
+    <Policy>AM-NormalizeModel</Policy>
+    <Policy>AM-RemoveAuthorization</Policy>
+    <Policy>AM-SetResponseHeaders</Policy>
+    <Policy>AM-SetUserIdentity</Policy>
+    <Policy>CORS</Policy>
+    <Policy>DC-FaultAnalytics</Policy>
+    <Policy>DC-ModelAnalytics</Policy>
+    <Policy>DJWT-ExtractUserIdentity</Policy>
+    <Policy>EV-ExtractAPIKey</Policy>
+    <Policy>EV-ExtractBearerToken</Policy>
+    <Policy>EV-ModelResponse</Policy>
+    <Policy>EV-RequestDetails</Policy>
+    <Policy>JS-CalculateCost</Policy>
+    <Policy>JS-ExtractClaudeUsage</Policy>
+    <Policy>KVM-GetModelRates</Policy>
+    <Policy>LTQ-TokenCount</Policy>
+    <Policy>LTQ-TokenCountSSE</Policy>
+    <Policy>LTQ-TokenEnforce</Policy>
+    <Policy>ML-CloudLogging</Policy>
+    <Policy>RF-UnsupportedPath</Policy>
+    <Policy>VA-VerifyAPIKey</Policy>
+  </Policies>
+  <ProxyEndpoints>
+    <ProxyEndpoint>default</ProxyEndpoint>
+  </ProxyEndpoints>
+  <Resources>
+    <Resource>jsc://CalculateCost.js</Resource>
+    <Resource>jsc://ExtractClaudeUsage.js</Resource>
+  </Resources>
+  <TargetEndpoints>
+    <TargetEndpoint>vertex</TargetEndpoint>
+    <TargetEndpoint>vertex-stream</TargetEndpoint>
+  </TargetEndpoints>
+</APIProxy>

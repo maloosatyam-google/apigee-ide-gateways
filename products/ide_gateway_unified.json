@@ -37,7 +37,7 @@
         ]
       },
       {
-        "apiSource": "apigee-claude-cli",
+        "apiSource": "claude-gateway-v1",
         "operations": [
           {
             "resource": "/**",

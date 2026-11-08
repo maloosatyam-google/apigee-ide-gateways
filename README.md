@@ -15,12 +15,12 @@ Supports both **Dedicated Per-Assistant Proxies** and a **Single Unified Multi-A
 apigee-ide-gateways/
 ├── proxies/
 │   ├── antigravity-gateway-v1/        # Dedicated Google Antigravity proxy (/antigravity/v1)
-│   ├── apigee-claude-cli/             # Dedicated Claude Code CLI proxy (/apigee-claude-cli)
+│   ├── claude-gateway-v1/             # Dedicated Claude Code CLI proxy (/claude/v1)
 │   ├── apigee-copilot-cli/            # Dedicated GitHub Copilot OpenAI proxy (/apigee-copilot-cli)
 │   └── ide-gateway-v1/                # Unified Multi-Assistant proxy (/ide-gateway/v1)
 ├── products/
 │   ├── antigravity_gateway.json       # API Product for antigravity-gateway-v1
-│   ├── claude_cli_gateway.json        # API Product for apigee-claude-cli
+│   ├── claude_cli_gateway.json        # API Product for claude-gateway-v1 (with llmOperationGroup token limits)
 │   ├── copilot_cli_gateway.json       # API Product for apigee-copilot-cli
 │   └── ide_gateway_unified.json       # Unified API Product covering all proxies
 ├── client-configs/
@@ -38,7 +38,7 @@ apigee-ide-gateways/
 
 | Capability | Google Antigravity (`agy` / App) | Claude Code (`claude` CLI) | GitHub Copilot (BYOK / CLI) |
 |---|---|---|---|
-| **Dedicated Proxy** | `antigravity-gateway-v1` (`/antigravity/v1`) | `apigee-claude-cli` (`/apigee-claude-cli`) | `apigee-copilot-cli` (`/apigee-copilot-cli`) |
+| **Dedicated Proxy** | `antigravity-gateway-v1` (`/antigravity/v1`) | `claude-gateway-v1` (`/claude/v1`) | `apigee-copilot-cli` (`/apigee-copilot-cli`) |
 | **Unified Proxy** | `ide-gateway-v1` (`/ide-gateway/v1`) | `ide-gateway-v1` (`/ide-gateway/v1`) | `ide-gateway-v1` (`/ide-gateway/v1`) |
 | **Wire Protocol** | Google GenAI (`wireProtocol: "genai"`) | Vertex Anthropic (`:streamRawPredict` / `:rawPredict`) | OpenAI Chat Completions (`/v1/chat/completions`) |
 | **Upstream Vertex AI Target** | `/v1/projects/{org}/locations/global/publishers/google/models/{model}:streamGenerateContent?alt=sse` | `/v1/projects/{project}/locations/{region}/publishers/anthropic/models/{model}:streamRawPredict` | `/v1beta1/projects/{org}/locations/global/endpoints/openapi/chat/completions` |
@@ -105,8 +105,8 @@ See [`client-configs/claude-code/settings.example.json`](client-configs/claude-c
     "CLAUDE_CODE_SKIP_VERTEX_AUTH": "1",
     "ANTHROPIC_VERTEX_PROJECT_ID": "PROJECT_ID",
     "CLOUD_ML_REGION": "global",
-    "ANTHROPIC_BASE_URL": "https://APIGEE_HOST/apigee-claude-cli/v1",
-    "ANTHROPIC_VERTEX_BASE_URL": "https://APIGEE_HOST/apigee-claude-cli/v1",
+    "ANTHROPIC_BASE_URL": "https://APIGEE_HOST/claude/v1/v1",
+    "ANTHROPIC_VERTEX_BASE_URL": "https://APIGEE_HOST/claude/v1/v1",
     "ANTHROPIC_CUSTOM_HEADERS": "x-apikey: APIGEE_KEY"
   },
   "apiKeyHelper": "~/.claude/get-apigee-token.sh",
@@ -171,7 +171,7 @@ export APIGEE_ENV="dev"
 export RUNTIME_SA="ai-client@${APIGEE_ORG}.iam.gserviceaccount.com"
 
 # Deploy individual proxies or the unified ide-gateway-v1 proxy:
-for P in antigravity-gateway-v1 apigee-claude-cli apigee-copilot-cli ide-gateway-v1; do
+for P in antigravity-gateway-v1 claude-gateway-v1 apigee-copilot-cli ide-gateway-v1; do
   python3 $SK/apigee-proxy-lifecycle/scripts/apigee_ctl.py update \
     ./proxies/$P --env $APIGEE_ENV --sa $RUNTIME_SA
 done

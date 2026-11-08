@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ExtractVariables continueOnError="true" enabled="true" name="EV-RequestDetails">
+  <DisplayName>EV-RequestDetails</DisplayName>
+  <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+  <!-- Extract project, location, and Claude model ID from Vertex Anthropic paths -->
+  <URIPath>
+    <Pattern ignoreCase="true">/v1/projects/{project}/locations/{location}/publishers/anthropic/models/{model}:streamRawPredict</Pattern>
+    <Pattern ignoreCase="true">/v1/projects/{project}/locations/{location}/publishers/anthropic/models/{model}:rawPredict</Pattern>
+    <Pattern ignoreCase="true">/v1/projects/{project}/locations/{location}/publishers/anthropic/models/{model}:countTokens</Pattern>
+    <Pattern ignoreCase="true">/models/{model}:streamRawPredict</Pattern>
+    <Pattern ignoreCase="true">/models/{model}:rawPredict</Pattern>
+    <Pattern ignoreCase="true">/models/{model}:countTokens</Pattern>
+  </URIPath>
+  <VariablePrefix>flow</VariablePrefix>
+</ExtractVariables>
