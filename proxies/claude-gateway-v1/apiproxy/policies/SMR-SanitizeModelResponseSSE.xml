@@ -8,3 +8,4 @@
   <LLMResponseSource>{jsonPath('$.delta.text',response.event.current.data,false)}</LLMResponseSource>
   <ContinuousScan>true</ContinuousScan>
 </SanitizeModelResponse>
+

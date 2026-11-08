@@ -78,7 +78,7 @@
       </Step>
       <Step>
         <Name>KVM-GetModelRates</Name>
-        <Condition>(response.status.code = 200) and !(proxy.pathsuffix JavaRegex "^.*:streamRawPredict$")</Condition>
+        <Condition>response.status.code = 200</Condition>
       </Step>
       <Step>
         <Name>JS-CalculateCost</Name>
@@ -90,7 +90,7 @@
       </Step>
       <Step>
         <Name>DC-ModelAnalytics</Name>
-        <Condition>response.status.code = 200</Condition>
+        <Condition>(response.status.code = 200) and !(proxy.pathsuffix JavaRegex "^.*:streamRawPredict$")</Condition>
       </Step>
       <Step>
         <Name>AM-SetResponseHeaders</Name>

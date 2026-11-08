@@ -1,7 +1,8 @@
 // Accumulate streamed Claude SSE text (content_block_delta) and token counts (message_start / message_delta)
-// into flow.responseText, flow.promptTokenCount, flow.candidatesTokenCount, and flow.totalTokenCount
-// so PostClientFlow ML-CloudLogging and EventFlow DC-ModelAnalytics record full prompt/response & token metrics.
+// into flow.responseText, flow.promptTokenCount, flow.candidatesTokenCount, flow.totalTokenCount, and flow.tx_cost_usd
+// so PostClientFlow ML-CloudLogging and EventFlow DC-ModelAnalytics record full prompt/response, token, and cost metrics.
 context.setVariable("flow.stream_done", "false");
+context.setVariable("flow.is_streaming", "true");
 
 try {
   var rawData = context.getVariable("response.event.current.data") || context.getVariable("response.event.current.content") || "";
@@ -47,6 +48,23 @@ try {
         context.setVariable("flow.candidatesTokenCount", String(cTok));
         context.setVariable("flow.totalTokenCount", String(pTok + cTok));
         context.setVariable("flow.stream_done", "true");
+
+        // Calculate cost from ai-model-rates KVM if loaded
+        var model = String(context.getVariable("flow.target_model") || context.getVariable("flow.model") || "").toLowerCase().trim();
+        var rawCard = context.getVariable("flow.model_rates_json");
+        if (rawCard) {
+          try {
+            var card = JSON.parse(String(rawCard));
+            var rate = card[model] || card[model.split("@")[0]] || card["default"] || null;
+            if (rate && !isNaN(parseFloat(rate.input)) && !isNaN(parseFloat(rate.output))) {
+              var usd = (pTok / 1000000.0) * parseFloat(rate.input) + (cTok / 1000000.0) * parseFloat(rate.output);
+              context.setVariable("flow.tx_cost_usd", usd.toFixed(6));
+              context.setVariable("flow.cost_source", "kvm");
+            }
+          } catch (rateErr) {
+            context.setVariable("flow.cost_source", "unavailable: invalid rate card JSON");
+          }
+        }
       }
     }
   }
