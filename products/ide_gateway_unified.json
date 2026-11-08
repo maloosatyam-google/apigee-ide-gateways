@@ -26,58 +26,6 @@
             ]
           }
         ]
-      },
-      {
-        "apiSource": "antigravity-gateway-v1",
-        "operations": [
-          {
-            "resource": "/**",
-            "methods": [
-              "GET",
-              "POST",
-              "OPTIONS"
-            ]
-          }
-        ]
-      },
-      {
-        "apiSource": "claude-gateway-v1",
-        "operations": [
-          {
-            "resource": "/**",
-            "methods": [
-              "GET",
-              "POST",
-              "OPTIONS"
-            ]
-          }
-        ]
-      },
-      {
-        "apiSource": "github-copilot-gateway-v1",
-        "operations": [
-          {
-            "resource": "/**",
-            "methods": [
-              "GET",
-              "POST",
-              "OPTIONS"
-            ]
-          }
-        ]
-      },
-      {
-        "apiSource": "microsoft-copilot-gateway-v1",
-        "operations": [
-          {
-            "resource": "/**",
-            "methods": [
-              "GET",
-              "POST",
-              "OPTIONS"
-            ]
-          }
-        ]
       }
     ],
     "operationConfigType": "proxy"
