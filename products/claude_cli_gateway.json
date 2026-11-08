@@ -20,6 +20,7 @@
           {
             "resource": "/**",
             "methods": [
+              "GET",
               "POST"
             ]
           }

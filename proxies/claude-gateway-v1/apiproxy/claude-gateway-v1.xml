@@ -4,6 +4,7 @@
   <Description>Enterprise LLM Gateway for Anthropic Claude Code CLI and IDE extensions on Vertex AI. Includes VerifyAPIKey, CORS, SanitizeUserPrompt/SanitizeModelResponse (Model Armor), LLMTokenQuota (Product-driven token limits across unary &amp; SSE streaming), DataCapture analytics, and Cloud Logging (including user prompt &amp; response text).</Description>
   <BasePaths>/claude/v1</BasePaths>
   <Policies>
+    <Policy>AM-ModelsResponse</Policy>
     <Policy>AM-NormalizeModel</Policy>
     <Policy>AM-RemoveAuthorization</Policy>
     <Policy>AM-RouteVertexTarget</Policy>

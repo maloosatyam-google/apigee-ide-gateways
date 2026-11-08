@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AssignMessage async="false" continueOnError="false" enabled="true" name="AM-ModelsResponse">
+  <DisplayName>AM-ModelsResponse</DisplayName>
+  <Set>
+    <StatusCode>200</StatusCode>
+    <ReasonPhrase>OK</ReasonPhrase>
+    <Headers>
+      <Header name="Content-Type">application/json</Header>
+    </Headers>
+    <Payload contentType="application/json">{
+  "data": [
+    {
+      "id": "claude-sonnet-5",
+      "display_name": "Claude Sonnet 5 (Vertex AI)",
+      "created_at": "2026-05-01T00:00:00Z",
+      "type": "model"
+    },
+    {
+      "id": "claude-opus-5-5",
+      "display_name": "Claude Opus 5.5 (Vertex AI)",
+      "created_at": "2026-05-01T00:00:00Z",
+      "type": "model"
+    },
+    {
+      "id": "claude-haiku-5-5",
+      "display_name": "Claude Haiku 5.5 (Vertex AI)",
+      "created_at": "2026-05-01T00:00:00Z",
+      "type": "model"
+    },
+    {
+      "id": "claude-opus-4-5-20251101",
+      "display_name": "Claude Opus 4.5 (Vertex AI)",
+      "created_at": "2025-11-01T00:00:00Z",
+      "type": "model"
+    },
+    {
+      "id": "claude-haiku-4-5-20251001",
+      "display_name": "Claude Haiku 4.5 (Vertex AI)",
+      "created_at": "2025-10-01T00:00:00Z",
+      "type": "model"
+    }
+  ],
+  "first_id": "claude-sonnet-5",
+  "has_more": false,
+  "last_id": "claude-haiku-4-5-20251001"
+}</Payload>
+  </Set>
+  <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+</AssignMessage>
+

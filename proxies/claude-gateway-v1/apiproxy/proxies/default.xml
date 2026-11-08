@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <!--
-  Claude Code Enterprise Gateway (claude-gateway-v1)
-  Governs Anthropic Claude Code CLI & IDE traffic to Vertex AI:
+  Claude Code & Claude Desktop Enterprise Gateway (claude-gateway-v1)
+  Governs both Anthropic Messages API (/v1/messages, /v1/models) and Vertex AI Anthropic API (:rawPredict, :streamRawPredict):
     1. CORS preflight & header support (CORS)
-    2. API Key authentication via x-apikey, x-goog-api-key, or Authorization: Bearer (EV-ExtractAPIKey + VA-VerifyAPIKey)
-    3. Per-user identity attribution from GCP identity JWT (EV-ExtractBearerToken + DJWT-ExtractUserIdentity + AM-SetUserIdentity)
-    4. User Prompt & Model Response extraction + Model Armor sanitization (JS-ExtractPromptAndModel + SUP-UserPrompt + SMR-SanitizeModelResponse / SMR-SanitizeModelResponseSSE)
-    5. Token Limiting via API Product llmOperationGroup (LTQ-TokenEnforce + LTQ-TokenCount / LTQ-TokenCountSSE)
-    6. DataCapture for Apigee Analytics (DC-ModelAnalytics + DC-FaultAnalytics)
-    7. Cloud Logging audit trail including prompt & response text in PostClientFlow (ML-CloudLogging)
+    2. API Key authentication via x-api-key, x-apikey, x-goog-api-key, or Authorization: Bearer (EV-ExtractAPIKey + VA-VerifyAPIKey)
+    3. Model discovery endpoint (GET /v1/models and GET /models -> AM-ModelsResponse)
+    4. Per-user identity attribution from API Key developer email or GCP identity JWT
+    5. User Prompt & Model Response extraction + Model Armor sanitization (JS-ExtractPromptAndModel + SUP-UserPrompt + SMR-SanitizeModelResponse / SMR-SanitizeModelResponseSSE)
+    6. Token Limiting via API Product llmOperationGroup (LTQ-TokenEnforce + LTQ-TokenCount / LTQ-TokenCountSSE)
+    7. DataCapture for Apigee Analytics (DC-ModelAnalytics + DC-FaultAnalytics)
+    8. Cloud Logging audit trail including prompt & response text in PostClientFlow (ML-CloudLogging)
 -->
 <ProxyEndpoint name="default">
   <PreFlow name="PreFlow">
@@ -26,17 +27,19 @@
       </Step>
       <Step>
         <Name>RF-UnsupportedPath</Name>
-        <Condition>(request.verb != "POST") or !(proxy.pathsuffix JavaRegex "^((/v1)?/projects/[^/]+/locations/[^/]+/publishers/anthropic)?/models/[A-Za-z0-9.\-@]+:(rawPredict|streamRawPredict|countTokens)$")</Condition>
+        <Condition>!((request.verb = "GET") and (proxy.pathsuffix JavaRegex "^(/v1)?/models$")) and !((request.verb = "POST") and ((proxy.pathsuffix JavaRegex "^((/v1)?/projects/[^/]+/locations/[^/]+/publishers/anthropic)?/models/[A-Za-z0-9.\-@]+:(rawPredict|streamRawPredict|countTokens)$") or (proxy.pathsuffix JavaRegex "^(/v1)?/messages(/count_tokens)?$")))</Condition>
       </Step>
       <Step>
         <Name>EV-RequestDetails</Name>
+        <Condition>request.verb = "POST"</Condition>
       </Step>
       <Step>
         <Name>JS-ExtractPromptAndModel</Name>
+        <Condition>request.verb = "POST"</Condition>
       </Step>
       <Step>
         <Name>AM-NormalizeModel</Name>
-        <Condition>flow.model != null</Condition>
+        <Condition>(request.verb = "POST") and (flow.model != null)</Condition>
       </Step>
       <Step>
         <Name>EV-ExtractBearerToken</Name>
@@ -51,50 +54,61 @@
       </Step>
       <Step>
         <Name>SUP-UserPrompt</Name>
-        <Condition>(flow.userPrompt != null) and (flow.userPrompt != "")</Condition>
+        <Condition>(request.verb = "POST") and (flow.userPrompt != null) and (flow.userPrompt != "")</Condition>
       </Step>
       <Step>
         <Name>LTQ-TokenEnforce</Name>
-        <Condition>!(proxy.pathsuffix JavaRegex "^.*:countTokens$")</Condition>
+        <Condition>(request.verb = "POST") and (flow.action != "countTokens")</Condition>
       </Step>
     </Request>
     <Response/>
   </PreFlow>
-  <Flows/>
+  <Flows>
+    <Flow name="ListModels">
+      <Description>Anthropic /v1/models discovery endpoint for Claude Desktop App</Description>
+      <Request/>
+      <Response>
+        <Step>
+          <Name>AM-ModelsResponse</Name>
+        </Step>
+      </Response>
+      <Condition>(request.verb = "GET") and (proxy.pathsuffix JavaRegex "^(/v1)?/models$")</Condition>
+    </Flow>
+  </Flows>
   <PostFlow name="PostFlow">
     <Request/>
     <Response>
       <Step>
         <Name>EV-ModelResponse</Name>
-        <Condition>(response.status.code = 200) and !(proxy.pathsuffix JavaRegex "^.*:streamRawPredict$")</Condition>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.action != "streamRawPredict")</Condition>
       </Step>
       <Step>
         <Name>JS-ExtractClaudeUsage</Name>
-        <Condition>(response.status.code = 200) and !(proxy.pathsuffix JavaRegex "^.*:streamRawPredict$")</Condition>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.action != "streamRawPredict")</Condition>
       </Step>
       <Step>
         <Name>LTQ-TokenCount</Name>
-        <Condition>(response.status.code = 200) and !(proxy.pathsuffix JavaRegex "^.*:(streamRawPredict|countTokens)$")</Condition>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.action != "streamRawPredict") and (flow.action != "countTokens")</Condition>
       </Step>
       <Step>
         <Name>KVM-GetModelRates</Name>
-        <Condition>response.status.code = 200</Condition>
+        <Condition>(request.verb = "POST") and (response.status.code = 200)</Condition>
       </Step>
       <Step>
         <Name>JS-CalculateCost</Name>
-        <Condition>(response.status.code = 200) and !(proxy.pathsuffix JavaRegex "^.*:streamRawPredict$")</Condition>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.action != "streamRawPredict")</Condition>
       </Step>
       <Step>
         <Name>SMR-SanitizeModelResponse</Name>
-        <Condition>(response.status.code = 200) and !(proxy.pathsuffix JavaRegex "^.*:(streamRawPredict|countTokens)$") and (flow.responseText != null) and (flow.responseText != "")</Condition>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.action != "streamRawPredict") and (flow.action != "countTokens") and (flow.responseText != null) and (flow.responseText != "")</Condition>
       </Step>
       <Step>
         <Name>DC-ModelAnalytics</Name>
-        <Condition>(response.status.code = 200) and !(proxy.pathsuffix JavaRegex "^.*:streamRawPredict$")</Condition>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.action != "streamRawPredict")</Condition>
       </Step>
       <Step>
         <Name>AM-SetResponseHeaders</Name>
-        <Condition>!(proxy.pathsuffix JavaRegex "^.*:streamRawPredict$")</Condition>
+        <Condition>(request.verb = "POST") and (flow.action != "streamRawPredict")</Condition>
       </Step>
     </Response>
   </PostFlow>
@@ -115,8 +129,11 @@
     <BasePath>/claude/v1</BasePath>
     <Properties/>
   </HTTPProxyConnection>
+  <RouteRule name="models-list">
+    <Condition>(request.verb = "GET") and (proxy.pathsuffix JavaRegex "^(/v1)?/models$")</Condition>
+  </RouteRule>
   <RouteRule name="vertex-stream">
-    <Condition>proxy.pathsuffix JavaRegex "^.*:streamRawPredict$"</Condition>
+    <Condition>(proxy.pathsuffix JavaRegex "^.*:streamRawPredict$") or (flow.action = "streamRawPredict")</Condition>
     <TargetEndpoint>vertex-stream</TargetEndpoint>
   </RouteRule>
   <RouteRule name="vertex">

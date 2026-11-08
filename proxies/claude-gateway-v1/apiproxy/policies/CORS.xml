@@ -3,7 +3,7 @@
   <DisplayName>CORS</DisplayName>
   <AllowOrigins>{request.header.origin}</AllowOrigins>
   <AllowMethods>GET, PUT, POST, DELETE, OPTIONS</AllowMethods>
-  <AllowHeaders>origin, x-requested-with, accept, content-type, authorization, x-apikey, x-goog-api-key, x-goog-api-client, x-goog-user-project, x-cost-center, anthropic-version, anthropic-beta</AllowHeaders>
+  <AllowHeaders>origin, x-requested-with, accept, content-type, authorization, x-apikey, x-api-key, x-goog-api-key, x-goog-api-client, x-goog-user-project, x-cost-center, anthropic-version, anthropic-beta, anthropic-dangerous-direct-browser-access</AllowHeaders>
   <ExposeHeaders>*</ExposeHeaders>
   <MaxAge>3628800</MaxAge>
   <AllowCredentials>false</AllowCredentials>
