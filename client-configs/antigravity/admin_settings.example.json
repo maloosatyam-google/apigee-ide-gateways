@@ -2,23 +2,48 @@
   "gateway": {
     "enabled": true,
     "url": "https://APIGEE_HOST/antigravity/v1",
-    "apiKey": "APIGEE_KEY",
     "wireProtocol": "genai",
+    "apiKey": "APIGEE_KEY",
     "customHeaders": {
       "x-apikey": "APIGEE_KEY",
-      "X-Goog-User-Project": "PROJECT_ID",
       "X-Cost-Center": "Core-Engineering"
-    },
-    "models": {
-      "defaultModelId": "gemini-3.8-flash",
-      "filter": [
-        "gemini-3.8-flash",
-        "gemini-3.1-pro-preview",
-        "gemini-3.1-flash-lite"
-      ]
     }
   },
-  "auth": {
-    "suppressInteractiveLogin": true
+  "models": {
+    "defaultModelId": "gemini-3.8-flash",
+    "list": [
+      {
+        "modelId": "gemini-4-argon",
+        "displayName": "Gemini 4 Argon",
+        "provider": "google"
+      },
+      {
+        "modelId": "gemini-3.8-flash",
+        "displayName": "Gemini 3.8 Flash",
+        "provider": "google"
+      },
+      {
+        "modelId": "gemini-3.1-pro-preview",
+        "displayName": "Gemini 3.1 Pro",
+        "provider": "google"
+      },
+      {
+        "modelId": "gemini-3.1-flash-lite",
+        "displayName": "Gemini 3.1 Flash Lite",
+        "provider": "google"
+      }
+    ],
+    "tiers": {
+      "flashLite": [
+        "gemini-3.1-flash-lite"
+      ],
+      "flash": [
+        "gemini-3.8-flash"
+      ],
+      "pro": [
+        "gemini-4-argon",
+        "gemini-3.1-pro-preview"
+      ]
+    }
   }
 }
