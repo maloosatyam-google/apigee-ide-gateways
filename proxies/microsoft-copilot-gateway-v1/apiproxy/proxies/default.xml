@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  Microsoft Copilot Studio & Azure OpenAI Enterprise Gateway (microsoft-copilot-gateway-v1)
+  Governs Microsoft Copilot Studio, M365 Agents, and Azure OpenAI SDK traffic to Google Cloud Vertex AI (Gemini & Claude):
+    1. CORS preflight & header support including Azure OpenAI `api-key` header (CORS)
+    2. API Key authentication via `api-key: <KEY>`, `Authorization: Bearer <KEY>`, `x-api-key`, `x-apikey`, or `x-goog-api-key` (EV-ExtractAPIKey + VA-VerifyAPIKey)
+    3. OpenAI & Azure OpenAI Model Discovery endpoint (GET /v1/models, GET /openai/models, GET /openai/deployments -> AM-ModelsResponse)
+    4. Azure OpenAI Deployment & OpenAI v1 Chat Completions routing:
+       - POST /openai/deployments/{model}/chat/completions?api-version=...
+       - POST /v1/openai/deployments/{model}/chat/completions?api-version=...
+       - POST /v1/chat/completions
+       - POST /chat/completions
+    5. Multi-Provider Vertex AI Routing (Gemini via OpenAI endpoint + Anthropic Claude via :rawPredict -> OpenAI format translation)
+    6. User Prompt & Model Response extraction + Model Armor sanitization (SUP-UserPrompt + SMR-SanitizeModelResponse / SMR-SanitizeModelResponseSSE)
+    7. Token Limiting via API Product llmOperationGroup (LTQ-TokenEnforce + LTQ-TokenCount / LTQ-TokenCountSSE)
+    8. Unbuffered SSE Streaming on Gemini (EventFlow) and SSE formatting on Claude, plus KVM cost calculation & Cloud Logging (ML-CloudLogging)
+-->
+<ProxyEndpoint name="default">
+  <PreFlow name="PreFlow">
+    <Request>
+      <Step>
+        <Name>CORS</Name>
+      </Step>
+      <Step>
+        <Name>EV-ExtractAPIKey</Name>
+        <Condition>request.verb != "OPTIONS"</Condition>
+      </Step>
+      <Step>
+        <Name>VA-VerifyAPIKey</Name>
+        <Condition>request.verb != "OPTIONS"</Condition>
+      </Step>
+      <Step>
+        <Name>RF-UnsupportedPath</Name>
+        <Condition>!((request.verb = "GET") and (proxy.pathsuffix JavaRegex "^(/v1)?(/openai)?/(models|deployments)$")) and !((request.verb = "POST") and (proxy.pathsuffix JavaRegex "^(/v1)?(/openai/deployments/[^/]+)?/chat/completions$"))</Condition>
+      </Step>
+      <Step>
+        <Name>JS-NormalizeOpenAIRequest</Name>
+        <Condition>request.verb = "POST"</Condition>
+      </Step>
+      <Step>
+        <Name>AM-NormalizeModel</Name>
+        <Condition>request.verb = "POST"</Condition>
+      </Step>
+      <Step>
+        <Name>EV-ExtractBearerToken</Name>
+      </Step>
+      <Step>
+        <Name>DJWT-ExtractUserIdentity</Name>
+        <Condition>flow.rawToken != null</Condition>
+      </Step>
+      <Step>
+        <Name>AM-SetUserIdentity</Name>
+        <Condition>(jwt.DJWT-ExtractUserIdentity.decoded.claim.email != null) or (jwt.DJWT-ExtractUserIdentity.claim.email != null)</Condition>
+      </Step>
+      <Step>
+        <Name>SUP-UserPrompt</Name>
+        <Condition>(request.verb = "POST") and (flow.userPrompt != null) and (flow.userPrompt != "")</Condition>
+      </Step>
+      <Step>
+        <Name>LTQ-TokenEnforce</Name>
+        <Condition>request.verb = "POST"</Condition>
+      </Step>
+    </Request>
+    <Response/>
+  </PreFlow>
+  <Flows>
+    <Flow name="ListModels">
+      <Description>OpenAI &amp; Azure OpenAI /v1/models and /openai/deployments discovery endpoint for Microsoft Copilot</Description>
+      <Request/>
+      <Response>
+        <Step>
+          <Name>AM-ModelsResponse</Name>
+        </Step>
+      </Response>
+      <Condition>(request.verb = "GET") and (proxy.pathsuffix JavaRegex "^(/v1)?(/openai)?/(models|deployments)$")</Condition>
+    </Flow>
+  </Flows>
+  <PostFlow name="PostFlow">
+    <Request/>
+    <Response>
+      <Step>
+        <Name>JS-TransformClaudeToOpenAI</Name>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.target_provider = "anthropic")</Condition>
+      </Step>
+      <Step>
+        <Name>EV-ModelResponse</Name>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.is_stream != "true")</Condition>
+      </Step>
+      <Step>
+        <Name>LTQ-TokenCount</Name>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.is_stream != "true")</Condition>
+      </Step>
+      <Step>
+        <Name>KVM-GetModelRates</Name>
+        <Condition>(request.verb = "POST") and (response.status.code = 200)</Condition>
+      </Step>
+      <Step>
+        <Name>JS-CalculateCost</Name>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.is_stream != "true")</Condition>
+      </Step>
+      <Step>
+        <Name>SMR-SanitizeModelResponse</Name>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.is_stream != "true") and (flow.responseText != null) and (flow.responseText != "")</Condition>
+      </Step>
+      <Step>
+        <Name>DC-ModelAnalytics</Name>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.is_stream != "true")</Condition>
+      </Step>
+      <Step>
+        <Name>AM-SetResponseHeaders</Name>
+        <Condition>(request.verb = "POST") and (flow.is_stream != "true")</Condition>
+      </Step>
+      <Step>
+        <Name>JS-FormatClaudeSSE</Name>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.target_provider = "anthropic") and (flow.client_stream = "true")</Condition>
+      </Step>
+    </Response>
+  </PostFlow>
+  <PostClientFlow name="PostClientFlow">
+    <Response>
+      <Step>
+        <Name>ML-CloudLogging</Name>
+      </Step>
+    </Response>
+  </PostClientFlow>
+  <DefaultFaultRule name="attribute-fault-to-user">
+    <AlwaysEnforce>true</AlwaysEnforce>
+    <Step>
+      <Name>DC-FaultAnalytics</Name>
+    </Step>
+  </DefaultFaultRule>
+  <HTTPProxyConnection>
+    <BasePath>/microsoft-copilot/v1</BasePath>
+    <Properties/>
+  </HTTPProxyConnection>
+  <RouteRule name="models-list">
+    <Condition>(request.verb = "GET") and (proxy.pathsuffix JavaRegex "^(/v1)?(/openai)?/(models|deployments)$")</Condition>
+  </RouteRule>
+  <RouteRule name="vertex-stream">
+    <Condition>flow.is_stream = "true"</Condition>
+    <TargetEndpoint>vertex-stream</TargetEndpoint>
+  </RouteRule>
+  <RouteRule name="vertex">
+    <TargetEndpoint>vertex</TargetEndpoint>
+  </RouteRule>
+</ProxyEndpoint>

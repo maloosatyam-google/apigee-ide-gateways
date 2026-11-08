@@ -1,0 +1,26 @@
+{
+  "azureOpenAI": {
+    "endpoint": "https://YOUR_APIGEE_HOST/microsoft-copilot/v1",
+    "apiKey": "YOUR_APIGEE_API_KEY",
+    "apiVersion": "2024-10-21",
+    "deployments": {
+      "gemini-4-argon": "/openai/deployments/gemini-4-argon/chat/completions?api-version=2024-10-21",
+      "gemini-3.8-flash": "/openai/deployments/gemini-3.8-flash/chat/completions?api-version=2024-10-21",
+      "claude-sonnet-5": "/openai/deployments/claude-sonnet-5/chat/completions?api-version=2024-10-21",
+      "claude-opus-5-5": "/openai/deployments/claude-opus-5-5/chat/completions?api-version=2024-10-21"
+    }
+  },
+  "openAICompatible": {
+    "baseUrl": "https://YOUR_APIGEE_HOST/microsoft-copilot/v1/v1",
+    "apiKey": "YOUR_APIGEE_API_KEY",
+    "models": [
+      "gemini-4-argon",
+      "gemini-3.8-flash",
+      "gemini-3.1-pro-preview",
+      "gemini-3.1-flash-lite",
+      "claude-sonnet-5",
+      "claude-opus-5-5",
+      "claude-haiku-5-5"
+    ]
+  }
+}

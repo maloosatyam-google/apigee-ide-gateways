@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<LLMTokenQuota continueOnError="true" enabled="true" name="LTQ-TokenCount" type="rollingwindow">
+  <DisplayName>LTQ-TokenCount</DisplayName>
+  <Allow count="100000" countRef="verifyapikey.VA-VerifyAPIKey.apiproduct.developer.llmQuota.limit"/>
+  <Interval ref="verifyapikey.VA-VerifyAPIKey.apiproduct.developer.llmQuota.interval">1</Interval>
+  <TimeUnit ref="verifyapikey.VA-VerifyAPIKey.apiproduct.developer.llmQuota.timeunit">minute</TimeUnit>
+  <Distributed>true</Distributed>
+  <Synchronous>true</Synchronous>
+  <Identifier ref="flow.quota_id"/>
+  <LLMTokenUsageSource>{flow.totalTokenCount}</LLMTokenUsageSource>
+  <LLMModelSource>{firstnonnull(flow.quota_model,flow.target_model)}</LLMModelSource>
+  <CountOnly>true</CountOnly>
+  <SharedName>copilot-token-counter</SharedName>
+</LLMTokenQuota>

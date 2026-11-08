@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AssignMessage async="false" continueOnError="false" enabled="true" name="AM-RemoveAuthorization">
+  <DisplayName>AM-RemoveAuthorization</DisplayName>
+  <Remove>
+    <Headers>
+      <Header name="Authorization"/>
+      <Header name="api-key"/>
+      <Header name="x-api-key"/>
+      <Header name="x-apikey"/>
+      <Header name="x-goog-api-key"/>
+    </Headers>
+  </Remove>
+  <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+</AssignMessage>

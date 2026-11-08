@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AssignMessage async="false" continueOnError="false" enabled="true" name="AM-ModelsResponse">
+  <DisplayName>AM-ModelsResponse</DisplayName>
+  <Set>
+    <StatusCode>200</StatusCode>
+    <Headers>
+      <Header name="Content-Type">application/json</Header>
+    </Headers>
+    <Payload contentType="application/json">{
+  "object": "list",
+  "data": [
+    {
+      "id": "gemini-4-argon",
+      "object": "model",
+      "owned_by": "google"
+    },
+    {
+      "id": "gemini-3.8-flash",
+      "object": "model",
+      "owned_by": "google"
+    },
+    {
+      "id": "gemini-3.1-pro-preview",
+      "object": "model",
+      "owned_by": "google"
+    },
+    {
+      "id": "gemini-3.1-flash-lite",
+      "object": "model",
+      "owned_by": "google"
+    },
+    {
+      "id": "gemini-2.5-pro",
+      "object": "model",
+      "owned_by": "google"
+    },
+    {
+      "id": "gemini-2.5-flash",
+      "object": "model",
+      "owned_by": "google"
+    },
+    {
+      "id": "claude-sonnet-5",
+      "object": "model",
+      "owned_by": "anthropic"
+    },
+    {
+      "id": "claude-opus-5-5",
+      "object": "model",
+      "owned_by": "anthropic"
+    },
+    {
+      "id": "claude-haiku-5-5",
+      "object": "model",
+      "owned_by": "anthropic"
+    },
+    {
+      "id": "claude-opus-4-5",
+      "object": "model",
+      "owned_by": "anthropic"
+    },
+    {
+      "id": "claude-haiku-4-5",
+      "object": "model",
+      "owned_by": "anthropic"
+    }
+  ]
+}</Payload>
+  </Set>
+  <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+</AssignMessage>
