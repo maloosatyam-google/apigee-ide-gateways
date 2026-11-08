@@ -14,6 +14,14 @@
     <Value>false</Value>
   </AssignVariable>
   <AssignVariable>
+    <Name>flow.emailId</Name>
+    <Ref>verifyapikey.VA-VerifyAPIKey.developer.email</Ref>
+  </AssignVariable>
+  <AssignVariable>
+    <Name>flow.userEmail</Name>
+    <Ref>verifyapikey.VA-VerifyAPIKey.developer.email</Ref>
+  </AssignVariable>
+  <AssignVariable>
     <Name>flow.quota_id</Name>
     <Ref>verifyapikey.VA-VerifyAPIKey.client_id</Ref>
   </AssignVariable>
