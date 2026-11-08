@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <APIProxy revision="1" name="claude-gateway-v1">
   <DisplayName>Claude Code Enterprise Gateway</DisplayName>
-  <Description>Enterprise LLM Gateway for Anthropic Claude Code CLI and IDE extensions on Vertex AI. Includes VerifyAPIKey, CORS, LLMTokenQuota (Product-driven token limits across unary &amp; SSE streaming), DataCapture analytics, and Cloud Logging.</Description>
+  <Description>Enterprise LLM Gateway for Anthropic Claude Code CLI and IDE extensions on Vertex AI. Includes VerifyAPIKey, CORS, SanitizeUserPrompt/SanitizeModelResponse (Model Armor), LLMTokenQuota (Product-driven token limits across unary &amp; SSE streaming), DataCapture analytics, and Cloud Logging (including user prompt &amp; response text).</Description>
   <BasePaths>/claude/v1</BasePaths>
   <Policies>
     <Policy>AM-NormalizeModel</Policy>
@@ -18,12 +18,17 @@
     <Policy>EV-RequestDetails</Policy>
     <Policy>JS-CalculateCost</Policy>
     <Policy>JS-ExtractClaudeUsage</Policy>
+    <Policy>JS-ExtractPromptAndModel</Policy>
+    <Policy>JS-ProcessStreamEvent</Policy>
     <Policy>KVM-GetModelRates</Policy>
     <Policy>LTQ-TokenCount</Policy>
     <Policy>LTQ-TokenCountSSE</Policy>
     <Policy>LTQ-TokenEnforce</Policy>
     <Policy>ML-CloudLogging</Policy>
     <Policy>RF-UnsupportedPath</Policy>
+    <Policy>SMR-SanitizeModelResponse</Policy>
+    <Policy>SMR-SanitizeModelResponseSSE</Policy>
+    <Policy>SUP-UserPrompt</Policy>
     <Policy>VA-VerifyAPIKey</Policy>
   </Policies>
   <ProxyEndpoints>
@@ -32,6 +37,8 @@
   <Resources>
     <Resource>jsc://CalculateCost.js</Resource>
     <Resource>jsc://ExtractClaudeUsage.js</Resource>
+    <Resource>jsc://ExtractPromptAndModel.js</Resource>
+    <Resource>jsc://ProcessStreamEvent.js</Resource>
   </Resources>
   <TargetEndpoints>
     <TargetEndpoint>vertex</TargetEndpoint>

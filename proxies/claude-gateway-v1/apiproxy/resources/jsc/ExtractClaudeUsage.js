@@ -7,3 +7,4 @@ var total = prompt + output;
 context.setVariable("flow.promptTokenCount", String(prompt));
 context.setVariable("flow.candidatesTokenCount", String(output));
 context.setVariable("flow.totalTokenCount", String(total));
+

@@ -12,3 +12,4 @@
   <CountOnly>true</CountOnly>
   <SharedName>claude-token-counter</SharedName>
 </LLMTokenQuota>
+

@@ -27,6 +27,8 @@
         "totalTokens": "{flow.totalTokenCount}",
         "tokenQuotaUsed": "{ratelimit.LTQ-TokenCount.used.count}",
         "tokenQuotaLimit": "{verifyapikey.VA-VerifyAPIKey.apiproduct.developer.llmQuota.limit}",
+        "prompt": "{escapeJSON(flow.userPrompt)}",
+        "response": "{escapeJSON(flow.responseText)}",
         "requestVerb": "{request.verb}",
         "clientIp": "{client.ip}",
         "clientReceivedStartTimeEpoch": "{client.received.start.timestamp}",

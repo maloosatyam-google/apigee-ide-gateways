@@ -5,9 +5,10 @@
     1. CORS preflight & header support (CORS)
     2. API Key authentication via x-apikey, x-goog-api-key, or Authorization: Bearer (EV-ExtractAPIKey + VA-VerifyAPIKey)
     3. Per-user identity attribution from GCP identity JWT (EV-ExtractBearerToken + DJWT-ExtractUserIdentity + AM-SetUserIdentity)
-    4. Token Limiting via API Product llmOperationGroup (LTQ-TokenEnforce + LTQ-TokenCount / LTQ-TokenCountSSE)
-    5. DataCapture for Apigee Analytics (DC-ModelAnalytics + DC-FaultAnalytics)
-    6. Cloud Logging audit trail in PostClientFlow (ML-CloudLogging)
+    4. User Prompt & Model Response extraction + Model Armor sanitization (JS-ExtractPromptAndModel + SUP-UserPrompt + SMR-SanitizeModelResponse / SMR-SanitizeModelResponseSSE)
+    5. Token Limiting via API Product llmOperationGroup (LTQ-TokenEnforce + LTQ-TokenCount / LTQ-TokenCountSSE)
+    6. DataCapture for Apigee Analytics (DC-ModelAnalytics + DC-FaultAnalytics)
+    7. Cloud Logging audit trail including prompt & response text in PostClientFlow (ML-CloudLogging)
 -->
 <ProxyEndpoint name="default">
   <PreFlow name="PreFlow">
@@ -31,6 +32,9 @@
         <Name>EV-RequestDetails</Name>
       </Step>
       <Step>
+        <Name>JS-ExtractPromptAndModel</Name>
+      </Step>
+      <Step>
         <Name>AM-NormalizeModel</Name>
         <Condition>flow.model != null</Condition>
       </Step>
@@ -44,6 +48,10 @@
       <Step>
         <Name>AM-SetUserIdentity</Name>
         <Condition>(jwt.DJWT-ExtractUserIdentity.decoded.claim.email != null) or (jwt.DJWT-ExtractUserIdentity.claim.email != null)</Condition>
+      </Step>
+      <Step>
+        <Name>SUP-UserPrompt</Name>
+        <Condition>(flow.userPrompt != null) and (flow.userPrompt != "")</Condition>
       </Step>
       <Step>
         <Name>LTQ-TokenEnforce</Name>
@@ -75,6 +83,10 @@
       <Step>
         <Name>JS-CalculateCost</Name>
         <Condition>(response.status.code = 200) and !(proxy.pathsuffix JavaRegex "^.*:streamRawPredict$")</Condition>
+      </Step>
+      <Step>
+        <Name>SMR-SanitizeModelResponse</Name>
+        <Condition>(response.status.code = 200) and !(proxy.pathsuffix JavaRegex "^.*:(streamRawPredict|countTokens)$") and (flow.responseText != null) and (flow.responseText != "")</Condition>
       </Step>
       <Step>
         <Name>DC-ModelAnalytics</Name>

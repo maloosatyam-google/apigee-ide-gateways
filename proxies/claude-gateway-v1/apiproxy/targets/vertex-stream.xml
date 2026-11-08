@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <TargetEndpoint name="vertex-stream">
-  <Description>Vertex AI Anthropic Claude SSE streaming (:streamRawPredict) with EventFlow token counting</Description>
+  <Description>Vertex AI Anthropic Claude SSE streaming (:streamRawPredict) with EventFlow Model Armor &amp; token counting</Description>
   <PreFlow name="PreFlow">
     <Request>
       <Step>
@@ -15,6 +15,13 @@
   </PostFlow>
   <EventFlow content-type="text/event-stream">
     <Response>
+      <Step>
+        <Name>SMR-SanitizeModelResponseSSE</Name>
+        <Condition>response.event.current.data JavaRegex "(?s).*\"text_delta\".*"</Condition>
+      </Step>
+      <Step>
+        <Name>JS-ProcessStreamEvent</Name>
+      </Step>
       <Step>
         <Name>LTQ-TokenCountSSE</Name>
         <Condition>response.event.current.data JavaRegex "(?s).*\"output_tokens\".*"</Condition>

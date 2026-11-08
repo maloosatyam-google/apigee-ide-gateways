@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<SanitizeModelResponse async="false" continueOnError="true" enabled="true" name="SMR-SanitizeModelResponseSSE">
+  <DisplayName>SMR-SanitizeModelResponseSSE</DisplayName>
+  <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+  <ModelArmor>
+    <TemplateName>projects/{organization.name}/locations/asia-southeast1/templates/apigee-sanitize-model-response</TemplateName>
+  </ModelArmor>
+  <LLMResponseSource>{jsonPath('$.delta.text',response.event.current.data,false)}</LLMResponseSource>
+  <ContinuousScan>true</ContinuousScan>
+</SanitizeModelResponse>
