@@ -1,7 +1,7 @@
 {
   "name": "Antigravity Enterprise Gateway",
   "displayName": "Antigravity Enterprise Gateway",
-  "description": "Enterprise Gateway product for Google Antigravity CLI (agy), App, and ACP Server through antigravity-gateway-v1 (/antigravity/v1).",
+  "description": "Enterprise Gateway product for Google Antigravity CLI (agy), App, and ACP Server through antigravity-gateway-v1 (/antigravity/v1) with per-model LLMTokenQuota governance.",
   "approvalType": "auto",
   "attributes": [
     {
@@ -20,6 +20,7 @@
           {
             "resource": "/**",
             "methods": [
+              "GET",
               "POST"
             ]
           }
@@ -27,6 +28,111 @@
       }
     ],
     "operationConfigType": "proxy"
+  },
+  "llmOperationGroup": {
+    "operationConfigs": [
+      {
+        "apiSource": "antigravity-gateway-v1",
+        "llmOperations": [
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ],
+            "model": "gemini-3.8-flash"
+          }
+        ],
+        "llmTokenQuota": {
+          "limit": "100000",
+          "interval": "1",
+          "timeUnit": "minute"
+        }
+      },
+      {
+        "apiSource": "antigravity-gateway-v1",
+        "llmOperations": [
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ],
+            "model": "gemini-3.6-flash"
+          }
+        ],
+        "llmTokenQuota": {
+          "limit": "100000",
+          "interval": "1",
+          "timeUnit": "minute"
+        }
+      },
+      {
+        "apiSource": "antigravity-gateway-v1",
+        "llmOperations": [
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ],
+            "model": "gemini-3.1-pro-preview"
+          }
+        ],
+        "llmTokenQuota": {
+          "limit": "100000",
+          "interval": "1",
+          "timeUnit": "minute"
+        }
+      },
+      {
+        "apiSource": "antigravity-gateway-v1",
+        "llmOperations": [
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ],
+            "model": "gemini-3.1-flash-lite"
+          }
+        ],
+        "llmTokenQuota": {
+          "limit": "100000",
+          "interval": "1",
+          "timeUnit": "minute"
+        }
+      },
+      {
+        "apiSource": "antigravity-gateway-v1",
+        "llmOperations": [
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ],
+            "model": "gemini-2.5-pro"
+          }
+        ],
+        "llmTokenQuota": {
+          "limit": "100000",
+          "interval": "1",
+          "timeUnit": "minute"
+        }
+      },
+      {
+        "apiSource": "antigravity-gateway-v1",
+        "llmOperations": [
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ],
+            "model": "gemini-2.5-flash"
+          }
+        ],
+        "llmTokenQuota": {
+          "limit": "100000",
+          "interval": "1",
+          "timeUnit": "minute"
+        }
+      }
+    ]
   }
 }
-

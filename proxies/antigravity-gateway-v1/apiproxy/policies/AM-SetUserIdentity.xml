@@ -17,5 +17,9 @@
     <Name>flow.userEmail</Name>
     <Ref>jwt.DJWT-ExtractUserIdentity.claim.email</Ref>
   </AssignVariable>
+  <AssignVariable>
+    <Name>flow.quota_id</Name>
+    <Ref>flow.emailId</Ref>
+  </AssignVariable>
   <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
 </AssignMessage>

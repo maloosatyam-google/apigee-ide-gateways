@@ -6,6 +6,9 @@
     <Name>flow.target_model</Name>
     <Value>gemini-3.1-flash-lite</Value>
   </AssignVariable>
+  <AssignVariable>
+    <Name>flow.quota_model</Name>
+    <Value>gemini-3.1-flash-lite</Value>
+  </AssignVariable>
   <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
 </AssignMessage>
-

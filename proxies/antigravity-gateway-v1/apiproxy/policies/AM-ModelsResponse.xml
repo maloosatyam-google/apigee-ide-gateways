@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<AssignMessage async="false" continueOnError="false" enabled="true" name="AM-ModelsResponse">
+  <DisplayName>AM-ModelsResponse</DisplayName>
+  <Set>
+    <StatusCode>200</StatusCode>
+    <ReasonPhrase>OK</ReasonPhrase>
+    <Headers>
+      <Header name="Content-Type">application/json</Header>
+    </Headers>
+    <Payload contentType="application/json">{
+  "models": [
+    {
+      "name": "models/gemini-3.8-flash",
+      "displayName": "Gemini 3.8 Flash",
+      "supportedGenerationMethods": ["generateContent", "streamGenerateContent"]
+    },
+    {
+      "name": "models/gemini-3.6-flash",
+      "displayName": "Gemini 3.6 Flash",
+      "supportedGenerationMethods": ["generateContent", "streamGenerateContent"]
+    },
+    {
+      "name": "models/gemini-3.1-pro-preview",
+      "displayName": "Gemini 3.1 Pro Preview",
+      "supportedGenerationMethods": ["generateContent", "streamGenerateContent"]
+    },
+    {
+      "name": "models/gemini-3.1-flash-lite",
+      "displayName": "Gemini 3.1 Flash Lite",
+      "supportedGenerationMethods": ["generateContent", "streamGenerateContent"]
+    }
+  ]
+}</Payload>
+  </Set>
+  <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+</AssignMessage>
+

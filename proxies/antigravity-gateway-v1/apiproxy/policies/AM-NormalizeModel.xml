@@ -6,6 +6,10 @@
     <Ref>flow.model</Ref>
   </AssignVariable>
   <AssignVariable>
+    <Name>flow.quota_model</Name>
+    <Ref>flow.model</Ref>
+  </AssignVariable>
+  <AssignVariable>
     <Name>flow.target_provider</Name>
     <Value>google</Value>
   </AssignVariable>
@@ -13,6 +17,17 @@
     <Name>flow.autoRouted</Name>
     <Value>false</Value>
   </AssignVariable>
+  <AssignVariable>
+    <Name>flow.emailId</Name>
+    <Ref>verifyapikey.VA-VerifyAPIKey.developer.email</Ref>
+  </AssignVariable>
+  <AssignVariable>
+    <Name>flow.userEmail</Name>
+    <Ref>verifyapikey.VA-VerifyAPIKey.developer.email</Ref>
+  </AssignVariable>
+  <AssignVariable>
+    <Name>flow.quota_id</Name>
+    <Ref>verifyapikey.VA-VerifyAPIKey.client_id</Ref>
+  </AssignVariable>
   <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
 </AssignMessage>
-

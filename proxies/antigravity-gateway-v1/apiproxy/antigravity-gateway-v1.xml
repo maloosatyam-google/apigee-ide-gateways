@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <APIProxy revision="1" name="antigravity-gateway-v1">
   <DisplayName>Antigravity Enterprise Gateway</DisplayName>
-  <Description>Enterprise LLM Gateway for Google Antigravity CLI, App, and ACP Server. Supports GenAI wire protocol (/v1beta/models/*:streamGenerateContent and :generateContent), unbuffered SSE streaming, attribution header preservation, and /v1internal:* telemetry acknowledgement.</Description>
+  <Description>Enterprise LLM Gateway for Google Antigravity CLI, App, and ACP Server. Supports GenAI wire protocol (/v1beta/models/*:streamGenerateContent and :generateContent), EventFlow SSE streaming with Model Armor &amp; token quota, attribution header preservation, and /v1internal:* telemetry acknowledgement.</Description>
   <BasePaths>/antigravity/v1</BasePaths>
   <Policies>
     <Policy>AM-AckTelemetry</Policy>
+    <Policy>AM-ModelsResponse</Policy>
     <Policy>AM-NormalizeModel</Policy>
     <Policy>AM-OverrideFlashLitePreview</Policy>
     <Policy>AM-RemoveAuthorization</Policy>
@@ -21,9 +22,17 @@
     <Policy>EV-ModelResponse</Policy>
     <Policy>EV-RequestDetails</Policy>
     <Policy>JS-CalculateCost</Policy>
+    <Policy>JS-ExtractPromptAndModel</Policy>
+    <Policy>JS-ProcessStreamEvent</Policy>
     <Policy>KVM-GetModelRates</Policy>
+    <Policy>LTQ-TokenCount</Policy>
+    <Policy>LTQ-TokenCountSSE</Policy>
+    <Policy>LTQ-TokenEnforce</Policy>
     <Policy>ML-CloudLogging</Policy>
     <Policy>RF-UnsupportedPath</Policy>
+    <Policy>SMR-SanitizeModelResponse</Policy>
+    <Policy>SMR-SanitizeModelResponseSSE</Policy>
+    <Policy>SUP-UserPrompt</Policy>
     <Policy>VA-VerifyAPIKey</Policy>
   </Policies>
   <ProxyEndpoints>
@@ -31,6 +40,8 @@
   </ProxyEndpoints>
   <Resources>
     <Resource>jsc://CalculateCost.js</Resource>
+    <Resource>jsc://ExtractPromptAndModel.js</Resource>
+    <Resource>jsc://ProcessStreamEvent.js</Resource>
   </Resources>
   <TargetEndpoints>
     <TargetEndpoint>vertex</TargetEndpoint>
