@@ -12,6 +12,10 @@ When configuring the Antigravity Desktop App on Windows via `C:\ProgramData\Anti
    - When `"models"` is nested inside `"gateway"`, Antigravity ignores the custom model list and displays the built-in catalog defaults (`gemini-4-argon` and `gemini-3.8-flash`).
 3. **Startup-Only Config Loading & Cached Auth State**:
    - `C:\ProgramData\Antigravity\admin_settings.json` (and `%USERPROFILE%\.gemini\antigravity\config.json`) is read **only once** when the background `Antigravity` / `agy` / `language_server` process starts. All running Antigravity processes must be terminated before relaunching the app.
+4. **`gemini-4-argon` `thinkingBudget` Default on Older Clients (e.g., `antigravity/hub/2.29.0`)**:
+   - In Antigravity `2.29.0` (before `gemini-4-argon` was added to the client's built-in static catalog in `2.31.x`), any `gemini*` model in `models.list` that is not in the client's built-in catalog goes through `admincontrols.HydrateModelEntryDefaults`, which defaults `supportsThinking: true` and `thinkingBudget: 4096`.
+   - Because Vertex AI `gemini-4-argon` uses `thinkingLevel` rather than `thinkingBudget`, sending `thinkingBudget: 4096` causes HTTP 400 (`Thinking budget is not supported for this model. Use thinking level instead.`).
+   - Setting `"supportsThinking": false` on the `"gemini-4-argon"` entry in `models.list` prevents `HydrateModelEntryDefaults` from injecting `thinkingBudget: 4096` and allows Vertex AI `gemini-4-argon` to use its native default thinking level.
 
 ---
 
@@ -46,7 +50,8 @@ $adminSettingsJson = @'
       {
         "modelId": "gemini-4-argon",
         "displayName": "Gemini 4 Argon",
-        "provider": "google"
+        "provider": "google",
+        "supportsThinking": false
       },
       {
         "modelId": "gemini-3.8-flash",
