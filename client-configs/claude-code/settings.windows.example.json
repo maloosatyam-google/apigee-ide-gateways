@@ -8,6 +8,7 @@
     "ANTHROPIC_VERTEX_BASE_URL": "https://APIGEE_HOST/claude/v1",
     "ANTHROPIC_CUSTOM_HEADERS": "x-apikey: APIGEE_KEY"
   },
+  "apiKeyHelper": "C:\\Users\\YOUR_WINDOWS_USERNAME\\.claude\\get-apigee-token.bat",
   "model": "claude-sonnet-5",
   "theme": "auto"
 }

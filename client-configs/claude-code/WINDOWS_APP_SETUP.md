@@ -6,9 +6,9 @@
 
 ---
 
-## Option A: Claude Desktop App on Windows (Chat + Code — Third-Party Inference Mode)
+## Option A: Claude Desktop App on Windows (Chat + Cowork — Third-Party Inference Mode)
 
-The Windows **Claude Desktop App (`Claude.exe`)** includes a built-in **Third-Party Inference Gateway** mode that routes all requests through Apigee using your static API key without requiring an Anthropic login or `gcloud` CLI:
+The Windows **Claude Desktop App (`Claude.exe`)** includes a built-in **Third-Party Inference Gateway** mode that routes requests through Apigee:
 
 ### 1. In-App GUI Setup
 1. Open the **Claude Desktop App** on Windows (if already signed into a personal account, sign out first).
@@ -16,12 +16,12 @@ The Windows **Claude Desktop App (`Claude.exe`)** includes a built-in **Third-Pa
 3. Click the top-left menu (`☰`) → **Developer** → **Configure Third-Party Inference…**
 4. Enter the following settings:
    - **Inference Provider:** `Gateway`
-   - **Credential Kind:** `Static API key`
+   - **Credential Kind:** `Static API key` (or `Command` pointing to `%USERPROFILE%\.claude\get-apigee-token.bat` for per-user GCP JWT identity attribution)
    - **Gateway Base URL:** `https://APIGEE_HOST/claude/v1`
    - **Auth Scheme:** `x-api-key` (or `bearer`)
    - **Gateway API Key:** `APIGEE_KEY`
+   - **Models:** Add `claude-sonnet-5`, `claude-opus-5-5`, `claude-haiku-5-5` (the first entry becomes the Default Model in Cowork/Chat).
 5. Click **Apply Changes** and restart the Claude Desktop App.
-   - The app will verify `GET https://APIGEE_HOST/claude/v1/v1/models` (`200 OK`) and populate the available Vertex AI Claude models (`claude-sonnet-5`, `claude-opus-5-5`, `claude-haiku-5-5`, `claude-opus-4-5-20251101`, `claude-haiku-4-5-20251001`).
 
 ### 2. Automated PowerShell / Registry Setup (Windows Policy / MDM)
 Alternatively, run this in **Administrator PowerShell** on Windows to configure Claude Desktop's Third-Party Inference via Windows Policy:
@@ -38,13 +38,20 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Claude" -Name "inferenceGatewayA
 
 ## Option B: Claude Desktop "Code" Tab, CLI & VS Code Extension (`%USERPROFILE%\.claude\settings.json`)
 
-The **Code** tab inside the Claude Desktop App, the **Claude Code CLI**, and the **VS Code Extension** read `%USERPROFILE%\.claude\settings.json`:
+The **Code** tab inside the Claude Desktop App, the **Claude Code CLI**, and the **VS Code Extension** read `%USERPROFILE%\.claude\settings.json` and `%USERPROFILE%\.claude\get-apigee-token.bat`:
 
 ### Run in Windows PowerShell:
 ```powershell
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude"
 
 @'
+@echo off
+call gcloud auth print-identity-token
+'@ | Set-Content -Path "$env:USERPROFILE\.claude\get-apigee-token.bat" -Encoding ASCII
+
+$helperPath = "$env:USERPROFILE\.claude\get-apigee-token.bat" -replace '\\', '\\'
+
+@"
 {
   "env": {
     "CLAUDE_CODE_USE_VERTEX": "1",
@@ -53,11 +60,12 @@ New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.claude"
     "CLOUD_ML_REGION": "global",
     "ANTHROPIC_BASE_URL": "https://APIGEE_HOST/claude/v1",
     "ANTHROPIC_VERTEX_BASE_URL": "https://APIGEE_HOST/claude/v1",
-    "ANTHROPIC_API_KEY": "APIGEE_KEY",
     "ANTHROPIC_CUSTOM_HEADERS": "x-apikey: APIGEE_KEY"
   },
+  "apiKeyHelper": "$helperPath",
   "model": "claude-sonnet-5",
   "theme": "auto"
 }
-'@ | Set-Content -Path "$env:USERPROFILE\.claude\settings.json" -Encoding UTF8
+"@ | Set-Content -Path "$env:USERPROFILE\.claude\settings.json" -Encoding UTF8
 ```
+*(If testing without `gcloud` installed on Windows, you can omit `"apiKeyHelper"` and add `"ANTHROPIC_API_KEY": "APIGEE_KEY"` inside `"env"`.)*
