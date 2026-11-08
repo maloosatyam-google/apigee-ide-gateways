@@ -3,7 +3,9 @@
   <DisplayName>AM-ModelsResponse</DisplayName>
   <Set>
     <StatusCode>200</StatusCode>
-    <ReasonPhrase>OK</ReasonPhrase>
+    <Headers>
+      <Header name="Content-Type">application/json</Header>
+    </Headers>
     <Payload contentType="application/json">{
   "object": "list",
   "data": [
@@ -36,10 +38,34 @@
       "id": "gemini-2.5-flash",
       "object": "model",
       "owned_by": "google"
+    },
+    {
+      "id": "claude-sonnet-5",
+      "object": "model",
+      "owned_by": "anthropic"
+    },
+    {
+      "id": "claude-opus-5-5",
+      "object": "model",
+      "owned_by": "anthropic"
+    },
+    {
+      "id": "claude-haiku-5-5",
+      "object": "model",
+      "owned_by": "anthropic"
+    },
+    {
+      "id": "claude-opus-4-5",
+      "object": "model",
+      "owned_by": "anthropic"
+    },
+    {
+      "id": "claude-haiku-4-5",
+      "object": "model",
+      "owned_by": "anthropic"
     }
   ]
 }</Payload>
   </Set>
   <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
-  <AssignTo createNew="false" transport="http" type="response"/>
 </AssignMessage>

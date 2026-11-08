@@ -6,9 +6,12 @@
     <Value>false</Value>
   </AssignVariable>
   <AssignVariable>
+    <Name>target.copy.queryparams</Name>
+    <Value>false</Value>
+  </AssignVariable>
+  <AssignVariable>
     <Name>target.url</Name>
-    <Template>https://aiplatform.googleapis.com/v1/projects/{organization.name}/locations/global/publishers/google/models/{flow.target_model}:streamGenerateContent?alt=sse</Template>
+    <Template>{flow.vertex_target_url}</Template>
   </AssignVariable>
   <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
 </AssignMessage>
-

@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<AssignMessage async="false" continueOnError="false" enabled="true" name="AM-RouteOpenAI">
-  <DisplayName>AM-RouteOpenAI</DisplayName>
+<AssignMessage async="false" continueOnError="false" enabled="true" name="AM-RouteVertex">
+  <DisplayName>AM-RouteVertex</DisplayName>
   <AssignVariable>
     <Name>target.copy.pathsuffix</Name>
     <Value>false</Value>
   </AssignVariable>
   <AssignVariable>
+    <Name>target.copy.queryparams</Name>
+    <Value>false</Value>
+  </AssignVariable>
+  <AssignVariable>
     <Name>target.url</Name>
-    <Template>https://aiplatform.googleapis.com/v1beta1/projects/{organization.name}/locations/global/endpoints/openapi/chat/completions</Template>
+    <Template>{flow.vertex_target_url}</Template>
   </AssignVariable>
   <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
 </AssignMessage>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<APIProxy revision="1" name="apigee-copilot-cli">
-  <DisplayName>apigee-copilot-cli</DisplayName>
-  <Description>GitHub Copilot &amp; OpenAI-compatible Enterprise Gateway to Vertex AI Gemini (/endpoints/openapi/chat/completions) with API Key auth, Model Armor, LLMTokenQuota, SSE EventFlow, and Cloud Logging</Description>
+<APIProxy revision="1" name="github-copilot-gateway-v1">
+  <DisplayName>GitHub Copilot Enterprise Gateway (Vertex AI Gemini &amp; Claude)</DisplayName>
+  <Description>Enterprise Gateway proxy for GitHub Copilot (VS Code BYOK &amp; CLI) and OpenAI-compatible clients (/github-copilot/v1) routing to Google Cloud Vertex AI (Gemini &amp; Claude) with API Key + JWT identity attribution, Model Armor sanitization, LLMTokenQuota enforcement, SSE EventFlow streaming, KVM cost calculation, and Cloud Logging.</Description>
   <Policies>
     <Policy>AM-ModelsResponse</Policy>
     <Policy>AM-NormalizeModel</Policy>
@@ -18,8 +18,10 @@
     <Policy>EV-ExtractBearerToken</Policy>
     <Policy>EV-ModelResponse</Policy>
     <Policy>JS-CalculateCost</Policy>
+    <Policy>JS-FormatClaudeSSE</Policy>
     <Policy>JS-NormalizeOpenAIRequest</Policy>
     <Policy>JS-ProcessStreamEvent</Policy>
+    <Policy>JS-TransformClaudeToOpenAI</Policy>
     <Policy>KVM-GetModelRates</Policy>
     <Policy>LTQ-TokenCount</Policy>
     <Policy>LTQ-TokenCountSSE</Policy>
@@ -36,8 +38,10 @@
   </ProxyEndpoints>
   <Resources>
     <Resource>jsc://CalculateCost.js</Resource>
+    <Resource>jsc://FormatClaudeSSE.js</Resource>
     <Resource>jsc://NormalizeOpenAIRequest.js</Resource>
     <Resource>jsc://ProcessStreamEvent.js</Resource>
+    <Resource>jsc://TransformClaudeToOpenAI.js</Resource>
   </Resources>
   <TargetEndpoints>
     <TargetEndpoint>vertex</TargetEndpoint>

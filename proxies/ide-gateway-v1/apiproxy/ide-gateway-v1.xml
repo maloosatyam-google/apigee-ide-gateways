@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<APIProxy revision="1" name="ide-gateway-v1">
-  <DisplayName>Unified AI Coding Assistants Gateway (Antigravity, Claude Code, GitHub Copilot)</DisplayName>
-  <Description>Unified Apigee X Enterprise Gateway routing Google Antigravity (GenAI wire protocol), Anthropic Claude Code (Vertex Anthropic wire protocol), and GitHub Copilot (OpenAI Chat Completions wire protocol) to Vertex AI.</Description>
-  <BasePaths>/ide-gateway/v1</BasePaths>
+<APIProxy revision="2" name="ide-gateway-v1">
+  <DisplayName>Unified Multi-Assistant IDE &amp; Copilot Enterprise Gateway</DisplayName>
+  <Description>Single Apigee X proxy (/ide-gateway/v1) governing Google Antigravity, Anthropic Claude Code &amp; Desktop, GitHub Copilot, and Microsoft Copilot traffic to Vertex AI (Gemini &amp; Claude) with API Key + JWT identity attribution, Model Armor sanitization, LLMTokenQuota enforcement, SSE EventFlow streaming, KVM cost calculation, and Cloud Logging.</Description>
   <Policies>
     <Policy>AM-AckTelemetry</Policy>
+    <Policy>AM-ModelsResponse</Policy>
     <Policy>AM-NormalizeModel</Policy>
-    <Policy>AM-OverrideFlashLitePreview</Policy>
     <Policy>AM-RemoveAuthorization</Policy>
-    <Policy>AM-RouteOpenAI</Policy>
     <Policy>AM-RouteVertex</Policy>
     <Policy>AM-RouteVertexStream</Policy>
     <Policy>AM-SetResponseHeaders</Policy>
@@ -20,12 +18,20 @@
     <Policy>EV-ExtractAPIKey</Policy>
     <Policy>EV-ExtractBearerToken</Policy>
     <Policy>EV-ModelResponse</Policy>
-    <Policy>EV-RequestDetails</Policy>
     <Policy>JS-CalculateCost</Policy>
+    <Policy>JS-FormatClaudeSSE</Policy>
     <Policy>JS-NormalizeOpenAIRequest</Policy>
+    <Policy>JS-ProcessStreamEvent</Policy>
+    <Policy>JS-TransformClaudeToOpenAI</Policy>
     <Policy>KVM-GetModelRates</Policy>
+    <Policy>LTQ-TokenCount</Policy>
+    <Policy>LTQ-TokenCountSSE</Policy>
+    <Policy>LTQ-TokenEnforce</Policy>
     <Policy>ML-CloudLogging</Policy>
     <Policy>RF-UnsupportedPath</Policy>
+    <Policy>SMR-SanitizeModelResponse</Policy>
+    <Policy>SMR-SanitizeModelResponseSSE</Policy>
+    <Policy>SUP-UserPrompt</Policy>
     <Policy>VA-VerifyAPIKey</Policy>
   </Policies>
   <ProxyEndpoints>
@@ -33,14 +39,13 @@
   </ProxyEndpoints>
   <Resources>
     <Resource>jsc://CalculateCost.js</Resource>
+    <Resource>jsc://FormatClaudeSSE.js</Resource>
     <Resource>jsc://NormalizeOpenAIRequest.js</Resource>
+    <Resource>jsc://ProcessStreamEvent.js</Resource>
+    <Resource>jsc://TransformClaudeToOpenAI.js</Resource>
   </Resources>
   <TargetEndpoints>
     <TargetEndpoint>vertex</TargetEndpoint>
-    <TargetEndpoint>vertex-claude</TargetEndpoint>
-    <TargetEndpoint>vertex-claude-stream</TargetEndpoint>
-    <TargetEndpoint>vertex-openapi</TargetEndpoint>
-    <TargetEndpoint>vertex-openapi-stream</TargetEndpoint>
     <TargetEndpoint>vertex-stream</TargetEndpoint>
   </TargetEndpoints>
 </APIProxy>

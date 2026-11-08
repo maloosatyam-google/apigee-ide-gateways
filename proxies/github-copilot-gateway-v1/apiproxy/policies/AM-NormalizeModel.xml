@@ -2,10 +2,6 @@
 <AssignMessage async="false" continueOnError="false" enabled="true" name="AM-NormalizeModel">
   <DisplayName>AM-NormalizeModel</DisplayName>
   <AssignVariable>
-    <Name>flow.target_provider</Name>
-    <Value>google</Value>
-  </AssignVariable>
-  <AssignVariable>
     <Name>flow.autoRouted</Name>
     <Value>false</Value>
   </AssignVariable>

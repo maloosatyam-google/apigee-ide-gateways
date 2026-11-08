@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <TargetEndpoint name="vertex-stream">
-  <Description>Vertex AI Gemini SSE streaming (:streamGenerateContent?alt=sse), unbuffered pass-through</Description>
+  <Description>Unified Vertex AI SSE streaming (GenAI :streamGenerateContent, Claude :streamRawPredict, OpenAI /chat/completions) with EventFlow Model Armor, token counting &amp; analytics</Description>
   <PreFlow name="PreFlow">
     <Request>
       <Step>
@@ -16,6 +16,25 @@
     <Request/>
     <Response/>
   </PostFlow>
+  <EventFlow content-type="text/event-stream">
+    <Response>
+      <Step>
+        <Name>JS-ProcessStreamEvent</Name>
+      </Step>
+      <Step>
+        <Name>SMR-SanitizeModelResponseSSE</Name>
+        <Condition>(flow.currentChunkText != null) and (flow.currentChunkText != "")</Condition>
+      </Step>
+      <Step>
+        <Name>LTQ-TokenCountSSE</Name>
+        <Condition>flow.stream_done = "true"</Condition>
+      </Step>
+      <Step>
+        <Name>DC-ModelAnalytics</Name>
+        <Condition>flow.stream_done = "true"</Condition>
+      </Step>
+    </Response>
+  </EventFlow>
   <Flows/>
   <HTTPTargetConnection>
     <Properties>
@@ -33,4 +52,3 @@
     </Authentication>
   </HTTPTargetConnection>
 </TargetEndpoint>
-

@@ -12,7 +12,7 @@
   "github.copilot.chat.customOAIModels": {
     "gemini-3.8-flash": {
       "name": "Gemini 3.8 Flash (Apigee Enterprise Gateway)",
-      "url": "https://<YOUR_APIGEE_HOST>/apigee-copilot-cli/v1/chat/completions",
+      "url": "https://<YOUR_APIGEE_HOST>/github-copilot/v1/v1/chat/completions",
       "toolCalling": true,
       "vision": true,
       "thinking": true,
@@ -22,7 +22,7 @@
     },
     "gemini-3.1-pro-preview": {
       "name": "Gemini 3.1 Pro (Apigee Enterprise Gateway)",
-      "url": "https://<YOUR_APIGEE_HOST>/apigee-copilot-cli/v1/chat/completions",
+      "url": "https://<YOUR_APIGEE_HOST>/github-copilot/v1/v1/chat/completions",
       "toolCalling": true,
       "vision": true,
       "thinking": true,
@@ -32,7 +32,7 @@
     },
     "gemini-3.1-flash-lite": {
       "name": "Gemini 3.1 Flash Lite (Apigee Enterprise Gateway)",
-      "url": "https://<YOUR_APIGEE_HOST>/apigee-copilot-cli/v1/chat/completions",
+      "url": "https://<YOUR_APIGEE_HOST>/github-copilot/v1/v1/chat/completions",
       "toolCalling": true,
       "vision": true,
       "thinking": true,
@@ -42,7 +42,7 @@
     },
     "gemini-4-argon": {
       "name": "Gemini 4 Argon (Apigee Enterprise Gateway)",
-      "url": "https://<YOUR_APIGEE_HOST>/apigee-copilot-cli/v1/chat/completions",
+      "url": "https://<YOUR_APIGEE_HOST>/github-copilot/v1/v1/chat/completions",
       "toolCalling": true,
       "vision": true,
       "thinking": true,
@@ -65,12 +65,12 @@ Test both non-streaming and SSE streaming directly from PowerShell on Windows:
 ```powershell
 # 1. Model Discovery (GET /v1/models)
 Invoke-RestMethod -Method Get `
-  -Uri "https://<YOUR_APIGEE_HOST>/apigee-copilot-cli/v1/models" `
+  -Uri "https://<YOUR_APIGEE_HOST>/github-copilot/v1/v1/models" `
   -Headers @{ "Authorization" = "Bearer <YOUR_APIGEE_API_KEY>" }
 
 # 2. Chat Completions (POST /v1/chat/completions)
 Invoke-RestMethod -Method Post `
-  -Uri "https://<YOUR_APIGEE_HOST>/apigee-copilot-cli/v1/chat/completions" `
+  -Uri "https://<YOUR_APIGEE_HOST>/github-copilot/v1/v1/chat/completions" `
   -Headers @{ "Authorization" = "Bearer <YOUR_APIGEE_API_KEY>"; "Content-Type" = "application/json" } `
   -Body '{"model":"gemini-3.8-flash","messages":[{"role":"user","content":"Reply PONG"}]}'
 ```

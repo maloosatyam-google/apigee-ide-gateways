@@ -2,9 +2,12 @@
 <ExtractVariables async="false" continueOnError="true" enabled="true" name="EV-ExtractAPIKey">
   <DisplayName>EV-ExtractAPIKey</DisplayName>
   <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
-  <!-- Accept Authorization: Bearer <KEY>, x-api-key, x-apikey, and x-goog-api-key -->
+  <!-- Accept Authorization: Bearer <KEY>, Azure OpenAI api-key, x-api-key, x-apikey, and x-goog-api-key -->
   <Header name="Authorization">
     <Pattern ignoreCase="true">Bearer {apiKey}</Pattern>
+    <Pattern ignoreCase="true">{apiKey}</Pattern>
+  </Header>
+  <Header name="api-key">
     <Pattern ignoreCase="true">{apiKey}</Pattern>
   </Header>
   <Header name="x-api-key">
@@ -16,6 +19,9 @@
   <Header name="x-goog-api-key">
     <Pattern ignoreCase="true">{apiKey}</Pattern>
   </Header>
+  <QueryParam name="api-key">
+    <Pattern ignoreCase="true">{apiKey}</Pattern>
+  </QueryParam>
   <Source clearPayload="false">request</Source>
   <VariablePrefix>flow</VariablePrefix>
 </ExtractVariables>

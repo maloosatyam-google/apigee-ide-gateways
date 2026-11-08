@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<CORS continueOnError="false" enabled="true" name="CORS">
+<CORS async="false" continueOnError="false" enabled="true" name="CORS">
   <DisplayName>CORS</DisplayName>
-  <AllowOrigins>{request.header.origin}</AllowOrigins>
-  <AllowMethods>GET, PUT, POST, DELETE, OPTIONS</AllowMethods>
-  <AllowHeaders>origin, x-requested-with, accept, content-type, authorization, x-apikey, x-goog-api-key, x-goog-api-client, x-goog-user-project, x-cost-center</AllowHeaders>
-  <ExposeHeaders>*</ExposeHeaders>
-  <MaxAge>3628800</MaxAge>
-  <AllowCredentials>false</AllowCredentials>
+  <AllowOrigins>*</AllowOrigins>
+  <AllowMethods>GET, POST, OPTIONS</AllowMethods>
+  <AllowHeaders>Content-Type, Authorization, api-key, x-api-key, x-apikey, x-goog-api-key, x-goog-user-project, x-cost-center, x-ms-client-request-id, openai-organization</AllowHeaders>
+  <ExposeHeaders>x-gateway-model, x-gateway-provider, x-gateway-mode, x-gateway-cost-usd, x-gateway-cost-source, x-gateway-currency, x-gateway-prompt-tokens, x-gateway-completion-tokens, x-gateway-total-tokens</ExposeHeaders>
+  <MaxAge>86400</MaxAge>
   <GeneratePreflightResponse>true</GeneratePreflightResponse>
-  <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
 </CORS>
-

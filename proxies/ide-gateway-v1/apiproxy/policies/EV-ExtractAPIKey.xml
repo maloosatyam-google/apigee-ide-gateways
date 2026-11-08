@@ -2,18 +2,26 @@
 <ExtractVariables async="false" continueOnError="true" enabled="true" name="EV-ExtractAPIKey">
   <DisplayName>EV-ExtractAPIKey</DisplayName>
   <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
-  <!-- Antigravity Gateway sends Authorization: Bearer <GATEWAY_API_KEY>; also accept x-goog-api-key and x-apikey -->
+  <!-- Accept Authorization: Bearer <KEY>, Azure OpenAI api-key, x-api-key, x-apikey, and x-goog-api-key -->
   <Header name="Authorization">
     <Pattern ignoreCase="true">Bearer {apiKey}</Pattern>
     <Pattern ignoreCase="true">{apiKey}</Pattern>
   </Header>
-  <Header name="x-goog-api-key">
+  <Header name="api-key">
+    <Pattern ignoreCase="true">{apiKey}</Pattern>
+  </Header>
+  <Header name="x-api-key">
     <Pattern ignoreCase="true">{apiKey}</Pattern>
   </Header>
   <Header name="x-apikey">
     <Pattern ignoreCase="true">{apiKey}</Pattern>
   </Header>
+  <Header name="x-goog-api-key">
+    <Pattern ignoreCase="true">{apiKey}</Pattern>
+  </Header>
+  <QueryParam name="api-key">
+    <Pattern ignoreCase="true">{apiKey}</Pattern>
+  </QueryParam>
   <Source clearPayload="false">request</Source>
   <VariablePrefix>flow</VariablePrefix>
 </ExtractVariables>
-

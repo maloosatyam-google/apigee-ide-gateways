@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <!--
-  Unified Multi-Assistant IDE Gateway (ide-gateway-v1)
-  Single Apigee X proxy (/ide-gateway/v1) serving:
-    1. Google Antigravity (agy CLI, App & ACP Server) - GenAI wire protocol (/v1beta/models/*, /v1internal:*)
-    2. Anthropic Claude Code (claude CLI)             - Vertex Anthropic wire protocol (/v1/projects/*/locations/*/publishers/anthropic/models/*)
-    3. GitHub Copilot (VS Code BYOK & Copilot CLI)    - OpenAI Chat Completions wire protocol (/chat/completions, /v1/chat/completions)
+  Unified Multi-Assistant IDE & Copilot Enterprise Gateway (ide-gateway-v1)
+  Single Apigee X proxy (/ide-gateway/v1) serving all 4 AI coding assistants & Copilots:
+    1. Google Antigravity (agy CLI & Desktop App)          - GenAI & v1internal wire protocols (/v1beta/models/*, /v1internal:*)
+    2. Anthropic Claude Code & Claude Desktop App          - Anthropic Messages (/v1/messages) & Vertex (:rawPredict/:streamRawPredict)
+    3. GitHub Copilot (VS Code BYOK & CLI)                 - OpenAI Chat Completions (/v1/chat/completions)
+    4. Microsoft Copilot (Copilot Studio & Azure OpenAI)   - Azure OpenAI Deployments (/openai/deployments/{model}/chat/completions)
 -->
 <ProxyEndpoint name="default">
   <PreFlow name="PreFlow">
@@ -22,22 +23,15 @@
       </Step>
       <Step>
         <Name>RF-UnsupportedPath</Name>
-        <Condition>(request.verb != "POST") or (!(proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/models/gemini[A-Za-z0-9.\-]*:(generateContent|streamGenerateContent)$") and !(proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/v1internal:(recordCodeAssistMetrics|registerInteraction|recordInteraction)$") and !(proxy.pathsuffix JavaRegex "^/v1/projects/[^/]+/locations/[^/]+/publishers/anthropic/models/[A-Za-z0-9.\-@]+:(rawPredict|streamRawPredict|countTokens)$") and !(proxy.pathsuffix JavaRegex "^(/v1)?/chat/completions$"))</Condition>
-      </Step>
-      <Step>
-        <Name>EV-RequestDetails</Name>
-      </Step>
-      <Step>
-        <Name>AM-NormalizeModel</Name>
-        <Condition>flow.model != null</Condition>
-      </Step>
-      <Step>
-        <Name>AM-OverrideFlashLitePreview</Name>
-        <Condition>flow.model = "gemini-3.1-flash-lite-preview"</Condition>
+        <Condition>!((request.verb = "GET") and (proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?(/openai)?/(models|deployments)$")) and !((request.verb = "POST") and ((proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/models/[A-Za-z0-9.\-]+:(generateContent|streamGenerateContent)$") or (proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/v1internal:(generateContent|streamGenerateContent|recordCodeAssistMetrics|registerInteraction|recordInteraction)$") or (proxy.pathsuffix JavaRegex "^(/v1)?/messages(/count_tokens)?$") or (proxy.pathsuffix JavaRegex "^/v1/projects/[^/]+/locations/[^/]+/publishers/anthropic/models/[A-Za-z0-9.\-@]+:(rawPredict|streamRawPredict|countTokens)$") or (proxy.pathsuffix JavaRegex "^(/v1)?(/openai/deployments/[^/]+)?/chat/completions$")))</Condition>
       </Step>
       <Step>
         <Name>JS-NormalizeOpenAIRequest</Name>
-        <Condition>proxy.pathsuffix JavaRegex "^(/v1)?/chat/completions$"</Condition>
+        <Condition>(request.verb = "POST") and !(proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/v1internal:(recordCodeAssistMetrics|registerInteraction|recordInteraction)$")</Condition>
+      </Step>
+      <Step>
+        <Name>AM-NormalizeModel</Name>
+        <Condition>(request.verb = "POST") and !(proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/v1internal:(recordCodeAssistMetrics|registerInteraction|recordInteraction)$")</Condition>
       </Step>
       <Step>
         <Name>EV-ExtractBearerToken</Name>
@@ -50,10 +44,28 @@
         <Name>AM-SetUserIdentity</Name>
         <Condition>(jwt.DJWT-ExtractUserIdentity.decoded.claim.email != null) or (jwt.DJWT-ExtractUserIdentity.claim.email != null)</Condition>
       </Step>
+      <Step>
+        <Name>SUP-UserPrompt</Name>
+        <Condition>(request.verb = "POST") and (flow.userPrompt != null) and (flow.userPrompt != "")</Condition>
+      </Step>
+      <Step>
+        <Name>LTQ-TokenEnforce</Name>
+        <Condition>(request.verb = "POST") and !(proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/v1internal:(recordCodeAssistMetrics|registerInteraction|recordInteraction)$") and !(proxy.pathsuffix JavaRegex "^.*(count_tokens|:countTokens)$")</Condition>
+      </Step>
     </Request>
     <Response/>
   </PreFlow>
   <Flows>
+    <Flow name="ListModels">
+      <Description>Unified Model Discovery endpoint (GET /v1/models, GET /v1beta/models, GET /openai/deployments)</Description>
+      <Request/>
+      <Response>
+        <Step>
+          <Name>AM-ModelsResponse</Name>
+        </Step>
+      </Response>
+      <Condition>(request.verb = "GET") and (proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?(/openai)?/(models|deployments)$")</Condition>
+    </Flow>
     <Flow name="TelemetryEndpoints">
       <Description>Acknowledge Antigravity /v1internal:* telemetry endpoints with 200 OK ({})</Description>
       <Request/>
@@ -69,24 +81,40 @@
     <Request/>
     <Response>
       <Step>
+        <Name>JS-TransformClaudeToOpenAI</Name>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.openai_to_claude = "true")</Condition>
+      </Step>
+      <Step>
         <Name>EV-ModelResponse</Name>
-        <Condition>(response.status.code = 200) and (proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/models/gemini[A-Za-z0-9.\-]*:generateContent$")</Condition>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.is_stream != "true") and !(proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/v1internal:(recordCodeAssistMetrics|registerInteraction|recordInteraction)$")</Condition>
       </Step>
       <Step>
         <Name>KVM-GetModelRates</Name>
-        <Condition>(response.status.code = 200) and (proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/models/gemini[A-Za-z0-9.\-]*:generateContent$")</Condition>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and !(proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/v1internal:(recordCodeAssistMetrics|registerInteraction|recordInteraction)$")</Condition>
       </Step>
       <Step>
         <Name>JS-CalculateCost</Name>
-        <Condition>(response.status.code = 200) and (proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/models/gemini[A-Za-z0-9.\-]*:generateContent$")</Condition>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.is_stream != "true") and !(proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/v1internal:(recordCodeAssistMetrics|registerInteraction|recordInteraction)$")</Condition>
+      </Step>
+      <Step>
+        <Name>LTQ-TokenCount</Name>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.is_stream != "true") and !(proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/v1internal:(recordCodeAssistMetrics|registerInteraction|recordInteraction)$") and !(proxy.pathsuffix JavaRegex "^.*(count_tokens|:countTokens)$")</Condition>
+      </Step>
+      <Step>
+        <Name>SMR-SanitizeModelResponse</Name>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.is_stream != "true") and (flow.responseText != null) and (flow.responseText != "")</Condition>
       </Step>
       <Step>
         <Name>DC-ModelAnalytics</Name>
-        <Condition>response.status.code = 200</Condition>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.is_stream != "true") and !(proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/v1internal:(recordCodeAssistMetrics|registerInteraction|recordInteraction)$")</Condition>
       </Step>
       <Step>
         <Name>AM-SetResponseHeaders</Name>
-        <Condition>proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/models/gemini[A-Za-z0-9.\-]*:generateContent$"</Condition>
+        <Condition>(request.verb = "POST") and (flow.is_stream != "true") and !(proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/v1internal:(recordCodeAssistMetrics|registerInteraction|recordInteraction)$")</Condition>
+      </Step>
+      <Step>
+        <Name>JS-FormatClaudeSSE</Name>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.openai_to_claude = "true") and (flow.client_stream = "true")</Condition>
       </Step>
     </Response>
   </PostFlow>
@@ -107,27 +135,14 @@
     <BasePath>/ide-gateway/v1</BasePath>
     <Properties/>
   </HTTPProxyConnection>
+  <RouteRule name="models-list">
+    <Condition>(request.verb = "GET") and (proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?(/openai)?/(models|deployments)$")</Condition>
+  </RouteRule>
   <RouteRule name="telemetry-ack">
     <Condition>proxy.pathsuffix JavaRegex "^(/v1beta|/v1)?/v1internal:(recordCodeAssistMetrics|registerInteraction|recordInteraction)$"</Condition>
   </RouteRule>
-  <RouteRule name="vertex-claude-stream">
-    <Condition>proxy.pathsuffix JavaRegex "^/v1/projects/[^/]+/locations/[^/]+/publishers/anthropic/models/[A-Za-z0-9.\-@]+:streamRawPredict$"</Condition>
-    <TargetEndpoint>vertex-claude-stream</TargetEndpoint>
-  </RouteRule>
-  <RouteRule name="vertex-claude">
-    <Condition>proxy.pathsuffix JavaRegex "^/v1/projects/[^/]+/locations/[^/]+/publishers/anthropic/models/[A-Za-z0-9.\-@]+:(rawPredict|countTokens)$"</Condition>
-    <TargetEndpoint>vertex-claude</TargetEndpoint>
-  </RouteRule>
-  <RouteRule name="vertex-openapi-stream">
-    <Condition>(proxy.pathsuffix JavaRegex "^(/v1)?/chat/completions$") and (flow.is_stream = "true")</Condition>
-    <TargetEndpoint>vertex-openapi-stream</TargetEndpoint>
-  </RouteRule>
-  <RouteRule name="vertex-openapi">
-    <Condition>proxy.pathsuffix JavaRegex "^(/v1)?/chat/completions$"</Condition>
-    <TargetEndpoint>vertex-openapi</TargetEndpoint>
-  </RouteRule>
   <RouteRule name="vertex-stream">
-    <Condition>proxy.pathsuffix JavaRegex "^.*:streamGenerateContent$"</Condition>
+    <Condition>flow.is_stream = "true"</Condition>
     <TargetEndpoint>vertex-stream</TargetEndpoint>
   </RouteRule>
   <RouteRule name="vertex">

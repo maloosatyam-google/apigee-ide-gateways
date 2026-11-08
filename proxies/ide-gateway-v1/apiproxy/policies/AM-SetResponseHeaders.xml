@@ -4,7 +4,7 @@
   <Set>
     <Headers>
       <Header name="x-gateway-model">{flow.target_model}</Header>
-      <Header name="x-gateway-provider">google</Header>
+      <Header name="x-gateway-provider">{firstnonnull(flow.target_provider,'google')}</Header>
       <Header name="x-gateway-mode">passthrough</Header>
       <Header name="x-gateway-cost-usd">{flow.tx_cost_usd}</Header>
       <Header name="x-gateway-cost-source">{flow.cost_source}</Header>

@@ -6,6 +6,10 @@
     <Value>false</Value>
   </AssignVariable>
   <AssignVariable>
+    <Name>target.copy.queryparams</Name>
+    <Value>false</Value>
+  </AssignVariable>
+  <AssignVariable>
     <Name>target.url</Name>
     <Template>https://aiplatform.googleapis.com/v1beta1/projects/{organization.name}/locations/global/endpoints/openapi/chat/completions</Template>
   </AssignVariable>

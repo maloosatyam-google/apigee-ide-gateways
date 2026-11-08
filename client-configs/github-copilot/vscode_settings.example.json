@@ -2,7 +2,7 @@
   "github.copilot.chat.customOAIModels": {
     "gemini-3.8-flash": {
       "name": "Gemini 3.8 Flash (Apigee Enterprise Gateway)",
-      "url": "https://APIGEE_HOST/apigee-copilot-cli/v1/chat/completions",
+      "url": "https://APIGEE_HOST/github-copilot/v1/v1/chat/completions",
       "toolCalling": true,
       "vision": true,
       "thinking": true,
@@ -12,7 +12,7 @@
     },
     "gemini-3.1-pro-preview": {
       "name": "Gemini 3.1 Pro (Apigee Enterprise Gateway)",
-      "url": "https://APIGEE_HOST/apigee-copilot-cli/v1/chat/completions",
+      "url": "https://APIGEE_HOST/github-copilot/v1/v1/chat/completions",
       "toolCalling": true,
       "vision": true,
       "thinking": true,
@@ -22,7 +22,7 @@
     },
     "gemini-3.1-flash-lite": {
       "name": "Gemini 3.1 Flash Lite (Apigee Enterprise Gateway)",
-      "url": "https://APIGEE_HOST/apigee-copilot-cli/v1/chat/completions",
+      "url": "https://APIGEE_HOST/github-copilot/v1/v1/chat/completions",
       "toolCalling": true,
       "vision": true,
       "thinking": true,
@@ -32,7 +32,7 @@
     },
     "gemini-4-argon": {
       "name": "Gemini 4 Argon (Apigee Enterprise Gateway)",
-      "url": "https://APIGEE_HOST/apigee-copilot-cli/v1/chat/completions",
+      "url": "https://APIGEE_HOST/github-copilot/v1/v1/chat/completions",
       "toolCalling": true,
       "vision": true,
       "thinking": true,

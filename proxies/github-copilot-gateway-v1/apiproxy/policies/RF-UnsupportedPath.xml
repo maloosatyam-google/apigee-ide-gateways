@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<RaiseFault async="false" continueOnError="false" enabled="true" name="RF-UnsupportedPath">
+  <DisplayName>RF-UnsupportedPath</DisplayName>
+  <FaultResponse>
+    <Set>
+      <StatusCode>404</StatusCode>
+      <ReasonPhrase>Not Found</ReasonPhrase>
+      <Headers>
+        <Header name="Content-Type">application/json</Header>
+      </Headers>
+      <Payload contentType="application/json">{"error":{"message":"Unsupported path on github-copilot-gateway-v1. Expected POST /v1/chat/completions, POST /openai/deployments/{model}/chat/completions, or GET /v1/models.","type":"invalid_request_error","code":"unsupported_path"}}</Payload>
+    </Set>
+  </FaultResponse>
+  <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
+</RaiseFault>
