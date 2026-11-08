@@ -6,6 +6,9 @@
       <Step>
         <Name>AM-RemoveAuthorization</Name>
       </Step>
+      <Step>
+        <Name>AM-RouteVertexTarget</Name>
+      </Step>
     </Request>
     <Response/>
   </PreFlow>

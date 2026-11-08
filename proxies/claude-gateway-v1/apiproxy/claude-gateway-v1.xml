@@ -6,6 +6,7 @@
   <Policies>
     <Policy>AM-NormalizeModel</Policy>
     <Policy>AM-RemoveAuthorization</Policy>
+    <Policy>AM-RouteVertexTarget</Policy>
     <Policy>AM-SetResponseHeaders</Policy>
     <Policy>AM-SetUserIdentity</Policy>
     <Policy>CORS</Policy>

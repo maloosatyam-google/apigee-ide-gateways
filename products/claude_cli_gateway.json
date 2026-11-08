@@ -59,6 +59,27 @@
             "methods": [
               "POST"
             ],
+            "model": "claude-sonnet-4-6"
+          },
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ],
+            "model": "claude-opus-4-6"
+          },
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ],
+            "model": "claude-sonnet-4-5"
+          },
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ],
             "model": "claude-opus-4-5"
           },
           {
@@ -67,6 +88,27 @@
               "POST"
             ],
             "model": "claude-haiku-4-5"
+          },
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ],
+            "model": "claude-3-7-sonnet"
+          },
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ],
+            "model": "claude-3-5-sonnet-v2"
+          },
+          {
+            "resource": "/**",
+            "methods": [
+              "POST"
+            ],
+            "model": "claude-3-5-haiku"
           }
         ],
         "llmTokenQuota": {

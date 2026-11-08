@@ -42,11 +42,16 @@ if (reqContent) {
     }
     if (payload.model && !context.getVariable("flow.model")) {
       context.setVariable("flow.model", String(payload.model));
-      context.setVariable("flow.target_model", String(payload.model));
-      context.setVariable("flow.quota_model", String(payload.model));
     }
   } catch (e) {
     // Non-JSON payload; continue
   }
 }
 
+// Normalize flow.quota_model by stripping @YYYYMMDD version suffix so it matches API Product llmOperations
+var rawModel = context.getVariable("flow.model") || "";
+if (rawModel) {
+  var normalizedQuotaModel = String(rawModel).split("@")[0];
+  context.setVariable("flow.quota_model", normalizedQuotaModel);
+  context.setVariable("flow.target_model", String(rawModel));
+}

@@ -26,7 +26,7 @@
       </Step>
       <Step>
         <Name>RF-UnsupportedPath</Name>
-        <Condition>(request.verb != "POST") or !(proxy.pathsuffix JavaRegex "^(/v1/projects/[^/]+/locations/[^/]+/publishers/anthropic)?/models/[A-Za-z0-9.\-@]+:(rawPredict|streamRawPredict|countTokens)$")</Condition>
+        <Condition>(request.verb != "POST") or !(proxy.pathsuffix JavaRegex "^((/v1)?/projects/[^/]+/locations/[^/]+/publishers/anthropic)?/models/[A-Za-z0-9.\-@]+:(rawPredict|streamRawPredict|countTokens)$")</Condition>
       </Step>
       <Step>
         <Name>EV-RequestDetails</Name>

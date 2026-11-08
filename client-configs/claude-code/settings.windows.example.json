@@ -1,0 +1,14 @@
+{
+  "env": {
+    "CLAUDE_CODE_USE_VERTEX": "1",
+    "CLAUDE_CODE_SKIP_VERTEX_AUTH": "1",
+    "ANTHROPIC_VERTEX_PROJECT_ID": "PROJECT_ID",
+    "CLOUD_ML_REGION": "global",
+    "ANTHROPIC_BASE_URL": "https://APIGEE_HOST/claude/v1",
+    "ANTHROPIC_VERTEX_BASE_URL": "https://APIGEE_HOST/claude/v1",
+    "ANTHROPIC_CUSTOM_HEADERS": "x-apikey: APIGEE_KEY"
+  },
+  "apiKeyHelper": "C:\\Users\\YOUR_WINDOWS_USERNAME\\.claude\\get-apigee-token.bat",
+  "model": "claude-sonnet-4-6",
+  "theme": "auto"
+}
