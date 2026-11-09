@@ -27,7 +27,7 @@
       </Step>
       <Step>
         <Name>LTQ-TokenCountSSE</Name>
-        <Condition>response.event.current.data JavaRegex "(?s).*output_tokens.*"</Condition>
+        <Condition>flow.stream_done = "true"</Condition>
       </Step>
       <Step>
         <Name>DC-ModelAnalytics</Name>

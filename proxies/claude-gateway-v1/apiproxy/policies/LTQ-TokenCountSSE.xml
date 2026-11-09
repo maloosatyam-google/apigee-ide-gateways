@@ -7,7 +7,7 @@
   <Distributed>true</Distributed>
   <Synchronous>true</Synchronous>
   <Identifier ref="flow.quota_id"/>
-  <LLMTokenUsageSource>{jsonPath('$.usage.output_tokens',response.event.current.data,false)}</LLMTokenUsageSource>
+  <LLMTokenUsageSource>{flow.totalTokenCount}</LLMTokenUsageSource>
   <LLMModelSource>{firstnonnull(flow.quota_model,flow.model)}</LLMModelSource>
   <CountOnly>true</CountOnly>
   <SharedName>claude-token-counter</SharedName>

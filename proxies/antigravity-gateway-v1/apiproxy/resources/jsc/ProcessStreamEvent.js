@@ -1,6 +1,7 @@
 // Process Vertex AI Gemini SSE event (:streamGenerateContent?alt=sse) inside <EventFlow>
 // Accumulates streamed candidate text into flow.responseText and extracts final usageMetadata
 // + calculates cost so PostClientFlow ML-CloudLogging and EventFlow DC-ModelAnalytics have full data.
+context.setVariable("flow.stream_done", "false");
 context.setVariable("flow.is_streaming", "true");
 var raw = context.getVariable("response.event.current.data") || "";
 if (raw) {
@@ -34,7 +35,7 @@ if (raw) {
       context.setVariable("flow.thoughtsTokenCount", String(thoughtTok));
       context.setVariable("flow.totalTokenCount", String(totTok));
 
-      if ((evt.candidates && evt.candidates[0] && evt.candidates[0].finishReason) || outTok > 0) {
+      if (evt.candidates && evt.candidates[0] && evt.candidates[0].finishReason) {
         context.setVariable("flow.stream_done", "true");
       }
 
@@ -52,7 +53,7 @@ if (raw) {
           }
         } catch (e2) {}
       }
-      var billableOut = outTok + thoughtTok;
+      var billableOut = (totTok > inTok) ? (totTok - inTok) : (outTok + thoughtTok);
       var costUsd = ((inTok * rates.input) + (billableOut * rates.output)) / 1000000.0;
       context.setVariable("flow.tx_cost_usd", costUsd.toFixed(6));
     }
@@ -60,4 +61,3 @@ if (raw) {
     // Ignore non-JSON keepalive frames
   }
 }
-

@@ -1,10 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<!--
-  Same custom dimensions as ai-gateway-v1's DC-ModelAnalytics, so pass-through traffic can be
-  charted alongside governed traffic (filter by apiproxy to tell them apart).
-  Deliberately NO monetization-scope collectors: this proxy must never charge a wallet.
-  dc_cache_status is recorded as DISABLED - there is no cache here.
--->
 <DataCapture name="DC-ModelAnalytics" continueOnError="true" enabled="true">
   <DisplayName>DC-ModelAnalytics</DisplayName>
   <IgnoreUnresolvedVariables>true</IgnoreUnresolvedVariables>
@@ -17,16 +11,24 @@
     <DataCollector>dc_model_name</DataCollector>
   </Capture>
   <Capture>
-    <Collect ref="flow.candidatesTokenCount" default="0"/>
-    <DataCollector>dc_candidates_token_count</DataCollector>
-  </Capture>
-  <Capture>
     <Collect ref="flow.promptTokenCount" default="0"/>
     <DataCollector>dc_prompt_token_count</DataCollector>
   </Capture>
   <Capture>
+    <Collect ref="flow.candidatesTokenCount" default="0"/>
+    <DataCollector>dc_candidates_token_count</DataCollector>
+  </Capture>
+  <Capture>
     <Collect ref="flow.totalTokenCount" default="0"/>
     <DataCollector>dc_total_token_count</DataCollector>
+  </Capture>
+  <Capture>
+    <Collect ref="flow.promptTokenCount" default="0"/>
+    <DataCollector>dc_llm_input_token</DataCollector>
+  </Capture>
+  <Capture>
+    <Collect ref="flow.candidatesTokenCount" default="0"/>
+    <DataCollector>dc_llm_output_token</DataCollector>
   </Capture>
   <Capture>
     <Collect ref="flow.cacheStatus" default="DISABLED"/>

@@ -2,8 +2,10 @@
 //   1. GenAI SSE (:streamGenerateContent?alt=sse -> candidates[].content.parts[].text, usageMetadata)
 //   2. Anthropic Claude SSE (:streamRawPredict -> content_block_delta.delta.text, message_start/message_delta usage)
 //   3. OpenAI SSE (/endpoints/openapi/chat/completions -> choices[].delta.content, usage)
-var rawEvent = context.getVariable("response.event.current.data") || "";
+context.setVariable("flow.stream_done", "false");
+context.setVariable("flow.is_streaming", "true");
 context.setVariable("flow.currentChunkText", "");
+var rawEvent = context.getVariable("response.event.current.data") || "";
 
 if (rawEvent) {
   try {
@@ -94,19 +96,20 @@ if (rawEvent) {
         var tTok = parseInt(context.getVariable("flow.totalTokenCount") || "0", 10);
         var bTok = (tTok > pTok) ? (tTok - pTok) : cTok;
         var model = context.getVariable("flow.target_model") || "gemini-3.8-flash";
-        var ratesJson = context.getVariable("private.model_rates_json");
-        var inputRate = 0.50;
-        var outputRate = 3.00;
+        var ratesJson = context.getVariable("flow.model_rates_json");
+        var inputRate = 0.15;
+        var outputRate = 0.60;
         if (ratesJson) {
           try {
             var rates = JSON.parse(ratesJson);
-            if (rates[model]) {
-              inputRate = rates[model].input;
-              outputRate = rates[model].output;
+            var r = rates[model] || rates[model.split("@")[0]] || rates["default"];
+            if (r) {
+              inputRate = parseFloat(r.input);
+              outputRate = parseFloat(r.output);
             }
           } catch (e) {}
         }
-        var cost = ((pTok / 1000000) * inputRate) + ((bTok / 1000000) * outputRate);
+        var cost = ((pTok / 1000000.0) * inputRate) + ((bTok / 1000000.0) * outputRate);
         context.setVariable("flow.tx_cost_usd", cost.toFixed(6));
       }
     }

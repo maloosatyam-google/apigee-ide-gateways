@@ -1,6 +1,7 @@
 // Process Vertex AI OpenAI SSE event (chat.completion.chunk) inside <EventFlow>
 // Accumulates streamed choices[0].delta.content into flow.responseText and extracts final usage
 // + calculates cost so PostClientFlow ML-CloudLogging and EventFlow DC-ModelAnalytics have full data.
+context.setVariable("flow.stream_done", "false");
 context.setVariable("flow.is_streaming", "true");
 var raw = context.getVariable("response.event.current.data") || "";
 if (raw && String(raw).trim() !== "[DONE]") {
@@ -28,7 +29,7 @@ if (raw && String(raw).trim() !== "[DONE]") {
 
       // 3. Compute costUsd from KVM rates if loaded
       var ratesJson = context.getVariable("flow.model_rates_json");
-      var model = context.getVariable("flow.model") || context.getVariable("flow.target_model");
+      var model = context.getVariable("flow.target_model") || context.getVariable("flow.model");
       var rates = { "input": 0.15, "output": 0.60 };
       if (ratesJson) {
         try {
@@ -40,7 +41,8 @@ if (raw && String(raw).trim() !== "[DONE]") {
           }
         } catch (e2) {}
       }
-      var costUsd = ((inTok * rates.input) + (outTok * rates.output)) / 1000000.0;
+      var billableOut = (totTok > inTok) ? (totTok - inTok) : outTok;
+      var costUsd = ((inTok * rates.input) + (billableOut * rates.output)) / 1000000.0;
       context.setVariable("flow.tx_cost_usd", costUsd.toFixed(6));
     }
   } catch (e) {
