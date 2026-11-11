@@ -58,7 +58,7 @@
       </Step>
       <Step>
         <Name>LTQ-TokenEnforce</Name>
-        <Condition>(request.verb = "POST") and (flow.action != "countTokens")</Condition>
+        <Condition>(request.verb = "POST") and (flow.action != "countTokens") and (flow.model != "count-tokens")</Condition>
       </Step>
     </Request>
     <Response/>
@@ -88,7 +88,7 @@
       </Step>
       <Step>
         <Name>LTQ-TokenCount</Name>
-        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.action != "streamRawPredict") and (flow.action != "countTokens")</Condition>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.action != "streamRawPredict") and (flow.action != "countTokens") and (flow.model != "count-tokens")</Condition>
       </Step>
       <Step>
         <Name>KVM-GetModelRates</Name>
@@ -100,7 +100,7 @@
       </Step>
       <Step>
         <Name>SMR-SanitizeModelResponse</Name>
-        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.action != "streamRawPredict") and (flow.action != "countTokens") and (flow.responseText != null) and (flow.responseText != "")</Condition>
+        <Condition>(request.verb = "POST") and (response.status.code = 200) and (flow.action != "streamRawPredict") and (flow.action != "countTokens") and (flow.model != "count-tokens") and (flow.responseText != null) and (flow.responseText != "")</Condition>
       </Step>
       <Step>
         <Name>DC-ModelAnalytics</Name>

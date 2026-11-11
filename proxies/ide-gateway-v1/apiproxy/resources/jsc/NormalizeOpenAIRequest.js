@@ -125,22 +125,48 @@ else if (pathSuffix.indexOf("/messages") !== -1 || pathSuffix.indexOf("/publishe
     context.setVariable("flow.userPrompt", claudePrompt.substring(0, 4096));
   }
 
-  var modified = false;
-  if (body.model) {
-    delete body.model;
-    modified = true;
-  }
-  if (!body.anthropic_version && claudeAction !== "countTokens") {
-    body.anthropic_version = "vertex-2023-10-16";
-    modified = true;
-  }
-  if (modified) {
+  var vertexClaude = resolveClaudeModel(rawClaudeModel.toLowerCase().replace(/-(\d{8})$/, "@$1"));
+  var bareClaude = vertexClaude.split("@")[0];
+  var isClaudeCount = (claudeAction === "countTokens");
+  var isClaudeStream = (!isClaudeCount) && (claudeAction === "streamRawPredict");
+
+  if (isClaudeCount) {
+    delete body.anthropic_version;
+    body.model = vertexClaude;
     context.setVariable("request.content", JSON.stringify(body));
+  } else {
+    var modified = false;
+    if (body.model) {
+      delete body.model;
+      modified = true;
+    }
+    if (!body.anthropic_version) {
+      body.anthropic_version = "vertex-2023-10-16";
+      modified = true;
+    }
+    if (modified) {
+      context.setVariable("request.content", JSON.stringify(body));
+    }
   }
 
-  var vertexClaude = resolveClaudeModel(rawClaudeModel);
-  var bareClaude = vertexClaude.split("@")[0];
-  var isClaudeStream = (claudeAction === "streamRawPredict");
+  // Sanitize anthropic-beta header
+  var betaHdr = context.getVariable("request.header.anthropic-beta");
+  if (betaHdr) {
+    var unsupBetas = ["advisor-tool", "per-turn-control", "mid-conversation-tool-changes", "inline-tools", "structured-outputs"];
+    var rBetas = String(betaHdr).split(",");
+    var fBetas = [];
+    for (var bIdx = 0; bIdx < rBetas.length; bIdx++) {
+      var flg = rBetas[bIdx].trim();
+      if (!flg) continue;
+      var bad = false;
+      for (var uIdx = 0; uIdx < unsupBetas.length; uIdx++) {
+        if (flg.indexOf(unsupBetas[uIdx]) === 0) { bad = true; break; }
+      }
+      if (!bad) fBetas.push(flg);
+    }
+    if (fBetas.length > 0) context.setVariable("request.header.anthropic-beta", fBetas.join(","));
+    else context.removeVariable("request.header.anthropic-beta");
+  }
 
   context.setVariable("flow.wire_protocol", "anthropic");
   context.setVariable("flow.target_provider", "anthropic");
@@ -152,7 +178,7 @@ else if (pathSuffix.indexOf("/messages") !== -1 || pathSuffix.indexOf("/publishe
   context.setVariable("flow.is_streaming", isClaudeStream ? "true" : "false");
   context.setVariable(
     "flow.vertex_target_url",
-    "https://aiplatform.googleapis.com/v1/projects/" + orgName + "/locations/global/publishers/anthropic/models/" + vertexClaude + ":" + claudeAction
+    "https://aiplatform.googleapis.com/v1/projects/" + orgName + "/locations/global/publishers/anthropic/models/" + (isClaudeCount ? "count-tokens:rawPredict" : (vertexClaude + ":" + claudeAction))
   );
 }
 // ---------------------------------------------------------------------------
